@@ -12,6 +12,7 @@ import torch.utils
 import torch.backends.cudnn as cudnn
 import torch.distributed as dist
 import torch.utils.data.distributed
+import torchvision
 
 #sys.path.append("../")
 from utils import *
@@ -19,6 +20,7 @@ from torchvision import datasets, transforms
 from torch.autograd import Variable
 from birealnet import birealnet18
 
+from mnist import MNIST
 
 parser = argparse.ArgumentParser("birealnet")
 parser.add_argument('--batch_size', type=int, default=512, help='batch size')
@@ -29,40 +31,50 @@ parser.add_argument('--weight_decay', type=float, default=0, help='weight decay'
 parser.add_argument('--save', type=str, default='./models', help='path for saving trained models')
 parser.add_argument('--data', metavar='DIR', help='path to dataset')
 parser.add_argument('--label_smooth', type=float, default=0.1, help='label smoothing')
-parser.add_argument('-j', '--workers', default=40, type=int, metavar='N',
+parser.add_argument('-j', '--workers', default=4, type=int, metavar='N',
                     help='number of data loading workers (default: 4)')
 args = parser.parse_args()
 
-CLASSES = 1000
+# CLASSES = 1000
+CLASSES = 10
+isCuda = False
 
 if not os.path.exists('log'):
     os.mkdir('log')
 
-log_format = '%(asctime)s %(message)s'
-logging.basicConfig(stream=sys.stdout, level=logging.INFO,
-    format=log_format, datefmt='%m/%d %I:%M:%S %p')
-fh = logging.FileHandler(os.path.join('log/log.txt'))
-fh.setFormatter(logging.Formatter(log_format))
-logging.getLogger().addHandler(fh)
+# log_format = '%(asctime)s %(message)s'
+# logging.basicConfig(stream=sys.stdout, level=logging.INFO,
+#     format=log_format, datefmt='%m/%d %I:%M:%S %p')
+# fh = logging.FileHandler(os.path.join('log/log.txt'))
+# fh.setFormatter(logging.Formatter(log_format))
+# logging.getLogger().addHandler(fh)
+
+log_format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+logging.basicConfig(filename='log/log.txt', filemode='a', 
+                    level=logging.INFO, format=log_format, datefmt='%m/%d %I:%M:%S %p')
 
 def main():
     if not torch.cuda.is_available():
-        sys.exit(1)
+        # sys.exit(1)
+        logging.warning('No CUDA available')
+        isCuda = False
+    else:
+        isCuda = True
     start_t = time.time()
 
-    cudnn.benchmark = True
-    cudnn.enabled=True
+    cudnn.benchmark = True if isCuda else False
+    cudnn.enabled=True if isCuda else False
     logging.info("args = %s", args)
 
     # load model
     model = birealnet18()
     logging.info(model)
-    model = nn.DataParallel(model).cuda()
+    model = nn.DataParallel(model).cuda() if isCuda else nn.DataParallel(model).cpu()
 
     criterion = nn.CrossEntropyLoss()
-    criterion = criterion.cuda()
+    criterion = criterion.cuda() if isCuda else criterion.cpu()
     criterion_smooth = CrossEntropyLabelSmooth(CLASSES, args.label_smooth)
-    criterion_smooth = criterion_smooth.cuda()
+    criterion_smooth = criterion_smooth.cuda() if isCuda else criterion_smooth.cpu()
 
     all_parameters = model.parameters()
     weight_parameters = []
@@ -99,6 +111,18 @@ def main():
     valdir = os.path.join(args.data, 'val')
     normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
                                      std=[0.229, 0.224, 0.225])
+    
+    # Added For MNIST
+    mndata = MNIST('Datasets/MNIST/raw')
+    train_images, train_labels = mndata.load_training()
+    # or
+    test_images, test_labels = mndata.load_testing()
+
+    mnist_dataset = torchvision.datasets.MNIST(
+        root="./Datasets",
+        download=True, 
+        train=True, 
+        transform=transforms.ToTensor())
 
     # data augmentation
     crop_scale = 0.08
@@ -110,23 +134,38 @@ def main():
         transforms.ToTensor(),
         normalize])
 
-    train_dataset = datasets.ImageFolder(
-        traindir,
-        transform=train_transforms)
+    ## Original
+    # train_dataset = datasets.ImageFolder(
+    #     traindir,
+    #     transform=train_transforms)
 
+    # # load validation data
+    # val_loader = torch.utils.data.DataLoader(
+    #     datasets.ImageFolder(valdir, transforms.Compose([
+    #         transforms.Resize(256),
+    #         transforms.CenterCrop(224),
+    #         transforms.ToTensor(),
+    #         normalize,
+    #     ])),
+    #     batch_size=args.batch_size, shuffle=False,
+    #     num_workers=args.workers, pin_memory=True)
+
+    # Mnist dataloader
+    # train_dataset = (mnist_dataset.train_data, mnist_dataset.train_labels)
+    train_dataset = mnist_dataset
     train_loader = torch.utils.data.DataLoader(
         train_dataset, batch_size=args.batch_size, shuffle=True,
         num_workers=args.workers, pin_memory=True)
-
-    # load validation data
+    
+    # val_dataset = (mnist_dataset.test_data, mnist_dataset.test_labels)
+    val_dataset = torchvision.datasets.MNIST(
+        root="./Datasets",
+        download=True, 
+        train=False, 
+        transform=transforms.ToTensor())
+    
     val_loader = torch.utils.data.DataLoader(
-        datasets.ImageFolder(valdir, transforms.Compose([
-            transforms.Resize(256),
-            transforms.CenterCrop(224),
-            transforms.ToTensor(),
-            normalize,
-        ])),
-        batch_size=args.batch_size, shuffle=False,
+        val_dataset, batch_size=args.batch_size, shuffle=False,
         num_workers=args.workers, pin_memory=True)
 
     # train the model
@@ -175,8 +214,8 @@ def train(epoch, train_loader, model, criterion, optimizer, scheduler):
 
     for i, (images, target) in enumerate(train_loader):
         data_time.update(time.time() - end)
-        images = images.cuda()
-        target = target.cuda()
+        images = images.cuda() if isCuda else images.cpu()
+        target = target.cuda() if isCuda else target.cpu()
 
         # compute outputy
         logits = model(images)
@@ -217,8 +256,8 @@ def validate(epoch, val_loader, model, criterion, args):
     with torch.no_grad():
         end = time.time()
         for i, (images, target) in enumerate(val_loader):
-            images = images.cuda()
-            target = target.cuda()
+            images = images.cuda() if isCuda else images.cpu()
+            target = target.cuda() if isCuda else target.cpu()
 
             # compute output
             logits = model(images)
