@@ -80,6 +80,7 @@ class BasicBlock(nn.Module):
         out = self.bn1(out)
 
         if self.downsample is not None:
+            print(residual.shape, 'pre downsample')
             residual = self.downsample(x)
 
         print(residual.shape, out.shape)
@@ -109,7 +110,8 @@ class BiRealNet(nn.Module):
         downsample = None
         if stride != 1 or self.inplanes != planes * block.expansion:
             downsample = nn.Sequential(
-                nn.AvgPool2d(kernel_size=2, stride=stride),
+                nn.AvgPool2d(kernel_size=2, stride=stride, padding=1),
+                # nn.AvgPool2d(kernel_size=2, stride=stride),
                 conv1x1(self.inplanes, planes * block.expansion),
                 nn.BatchNorm2d(planes * block.expansion),
             )
