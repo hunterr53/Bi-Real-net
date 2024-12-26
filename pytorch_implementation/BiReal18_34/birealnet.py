@@ -101,8 +101,8 @@ class BiRealNet(nn.Module):
         self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
         self.layer1 = self._make_layer(block, 64, layers[0])
         self.layer2 = self._make_layer(block, 128, layers[1], stride=2)
-        self.layer3 = self._make_layer(block, 256, layers[2], stride=2)
-        self.layer4 = self._make_layer(block, 512, layers[3], stride=2)
+        self.layer3 = self._make_layer(block, 256, layers[2], stride=3)
+        self.layer4 = self._make_layer(block, 512, layers[3], stride=3)
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
         self.fc = nn.Linear(512 * block.expansion, num_classes)
 
@@ -129,9 +129,11 @@ class BiRealNet(nn.Module):
         x = self.bn1(x)
         x = self.maxpool(x)
 
+        print('Layer1')
         x = self.layer1(x)
-        print(x.shape)
+        print('Layer2')
         x = self.layer2(x)
+        print('Layer3')
         x = self.layer3(x)
         x = self.layer4(x)
 

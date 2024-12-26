@@ -123,6 +123,12 @@ def main():
         download=True, 
         train=True, 
         transform=transforms.ToTensor())
+    
+    cifa10_dataset = torchvision.datasets.CIFAR10(
+        root="./Datasets",
+        download=True, 
+        train=True, 
+        transform=transforms.ToTensor())
 
     # data augmentation
     crop_scale = 0.08
