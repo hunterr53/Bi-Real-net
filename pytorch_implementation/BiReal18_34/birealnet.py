@@ -82,6 +82,7 @@ class BasicBlock(nn.Module):
         if self.downsample is not None:
             residual = self.downsample(x)
 
+        print(residual.shape, out.shape)
         out += residual
 
         return out
@@ -127,6 +128,7 @@ class BiRealNet(nn.Module):
         x = self.maxpool(x)
 
         x = self.layer1(x)
+        print(x.shape)
         x = self.layer2(x)
         x = self.layer3(x)
         x = self.layer4(x)
