@@ -23,7 +23,7 @@ from birealnet import birealnet18
 from mnist import MNIST
 
 parser = argparse.ArgumentParser("birealnet")
-parser.add_argument('--batch_size', type=int, default=256, help='batch size')
+parser.add_argument('--batch_size', type=int, default=164, help='batch size')
 parser.add_argument('--epochs', type=int, default=256, help='num of training epochs')
 parser.add_argument('--learning_rate', type=float, default=0.001, help='init learning rate')
 parser.add_argument('--momentum', type=float, default=0.9, help='momentum')
@@ -31,7 +31,7 @@ parser.add_argument('--weight_decay', type=float, default=0, help='weight decay'
 parser.add_argument('--save', type=str, default='./models', help='path for saving trained models')
 parser.add_argument('--data', metavar='DIR', help='path to dataset')
 parser.add_argument('--label_smooth', type=float, default=0.1, help='label smoothing')
-parser.add_argument('-j', '--workers', default=4, type=int, metavar='N',
+parser.add_argument('-j', '--workers', default=24, type=int, metavar='N',
                     help='number of data loading workers (default: 4)')
 args = parser.parse_args()
 
@@ -39,8 +39,8 @@ args = parser.parse_args()
 CLASSES = 10
 isCuda = True
 
-if not os.path.exists('log'):
-    os.mkdir('log')
+# if not os.path.exists('log'):
+#     os.mkdir('log')
 
 # log_format = '%(asctime)s %(message)s'
 # logging.basicConfig(stream=sys.stdout, level=logging.INFO,
@@ -50,7 +50,7 @@ if not os.path.exists('log'):
 # logging.getLogger().addHandler(fh)
 
 log_format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-logging.basicConfig(filename='log/log.txt', filemode='a', 
+logging.basicConfig(filename='pytorch_implementation/BiReal18_34/log/log.txt', filemode='a', 
                     level=logging.INFO, format=log_format, datefmt='%m/%d %I:%M:%S %p')
 
 def main():
@@ -139,6 +139,13 @@ def main():
         Lighting(lighting_param),
         transforms.RandomHorizontalFlip(),
         transforms.ToTensor(),
+        normalize])    
+    
+    val_transforms = transforms.Compose([
+        transforms.Resize(256),
+        Lighting(lighting_param),
+        transforms.CenterCrop(224),
+        transforms.ToTensor(),
         normalize])
 
     ## Original
@@ -165,18 +172,23 @@ def main():
     cifar10_dataset.transform = train_transforms
     train_dataset = cifar10_dataset
 
-
-
     train_loader = torch.utils.data.DataLoader(
         train_dataset, batch_size=args.batch_size, shuffle=True,
         num_workers=args.workers, pin_memory=True)
     
+
+    
     # val_dataset = (mnist_dataset.test_data, mnist_dataset.test_labels)
-    val_dataset = torchvision.datasets.MNIST(
+    # val_dataset = torchvision.datasets.MNIST(
+    #     root="./Datasets",
+    #     download=True, 
+    #     train=False, 
+    #     transform=transforms.ToTensor())
+    val_dataset = torchvision.datasets.CIFAR10(
         root="./Datasets",
         download=True, 
         train=False, 
-        transform=transforms.ToTensor())
+        transform=val_transforms)
     
     val_loader = torch.utils.data.DataLoader(
         val_dataset, batch_size=args.batch_size, shuffle=False,
