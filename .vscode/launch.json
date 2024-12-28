@@ -5,12 +5,12 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python Debugger: train Mnist",
+            "name": "Python Debugger: train CIFAR10",
             "type": "debugpy",
             "request": "launch",
             // "program": "${file}",
             "program": "pytorch_implementation/BiReal18_34/train.py",
-            "args": ["--data", "Datasets/MNIST"],
+            "args": ["--data", "Datasets/CIFAR10"],
             "console": "integratedTerminal"
         }
     ]

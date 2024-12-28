@@ -83,7 +83,7 @@ class BasicBlock(nn.Module):
             print(residual.shape, 'pre downsample')
             residual = self.downsample(x)
 
-        print(residual.shape, out.shape)
+        print('Residual:', residual.shape, '- Out', out.shape)
         out += residual
 
         return out
@@ -94,15 +94,14 @@ class BiRealNet(nn.Module):
     def __init__(self, block, layers, num_classes=10, zero_init_residual=False):
         super(BiRealNet, self).__init__()
         self.inplanes = 64
-        # self.conv1 = nn.Conv2d(3, 64, kernel_size=7, stride=2, padding=3,
-        self.conv1 = nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3,
+        self.conv1 = nn.Conv2d(3, 64, kernel_size=7, stride=2, padding=3,
                                bias=False)
         self.bn1 = nn.BatchNorm2d(64)
         self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
         self.layer1 = self._make_layer(block, 64, layers[0])
         self.layer2 = self._make_layer(block, 128, layers[1], stride=2)
-        self.layer3 = self._make_layer(block, 256, layers[2], stride=3)
-        self.layer4 = self._make_layer(block, 512, layers[3], stride=3)
+        self.layer3 = self._make_layer(block, 256, layers[2], stride=2) # 3 for MNIST..?
+        self.layer4 = self._make_layer(block, 512, layers[3], stride=2) # 3 for MNIST..?
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
         self.fc = nn.Linear(512 * block.expansion, num_classes)
 
@@ -110,8 +109,7 @@ class BiRealNet(nn.Module):
         downsample = None
         if stride != 1 or self.inplanes != planes * block.expansion:
             downsample = nn.Sequential(
-                nn.AvgPool2d(kernel_size=2, stride=stride, padding=1),
-                # nn.AvgPool2d(kernel_size=2, stride=stride),
+                nn.AvgPool2d(kernel_size=2, stride=stride),
                 conv1x1(self.inplanes, planes * block.expansion),
                 nn.BatchNorm2d(planes * block.expansion),
             )
@@ -135,6 +133,7 @@ class BiRealNet(nn.Module):
         x = self.layer2(x)
         print('Layer3')
         x = self.layer3(x)
+        print('Layer4')
         x = self.layer4(x)
 
         x = self.avgpool(x)

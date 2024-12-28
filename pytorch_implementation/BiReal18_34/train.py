@@ -107,8 +107,8 @@ def main():
         scheduler.step()
 
     # load training data
-    traindir = os.path.join(args.data, 'train')
-    valdir = os.path.join(args.data, 'val')
+    # traindir = os.path.join(args.data, 'train')
+    # valdir = os.path.join(args.data, 'val')
     normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
                                      std=[0.229, 0.224, 0.225])
     
@@ -124,7 +124,7 @@ def main():
         train=True, 
         transform=transforms.ToTensor())
     
-    cifa10_dataset = torchvision.datasets.CIFAR10(
+    cifar10_dataset = torchvision.datasets.CIFAR10(
         root="./Datasets",
         download=True, 
         train=True, 
@@ -158,7 +158,14 @@ def main():
 
     # Mnist dataloader
     # train_dataset = (mnist_dataset.train_data, mnist_dataset.train_labels)
-    train_dataset = mnist_dataset
+    # train_dataset = mnist_dataset
+    
+    # Cifar10 dataloader
+    cifar10_dataset.transform = train_transforms
+    train_dataset = cifar10_dataset
+
+
+
     train_loader = torch.utils.data.DataLoader(
         train_dataset, batch_size=args.batch_size, shuffle=True,
         num_workers=args.workers, pin_memory=True)
