@@ -23,7 +23,7 @@ from birealnet import birealnet18
 from mnist import MNIST
 
 parser = argparse.ArgumentParser("birealnet")
-parser.add_argument('--batch_size', type=int, default=512, help='batch size')
+parser.add_argument('--batch_size', type=int, default=256, help='batch size')
 parser.add_argument('--epochs', type=int, default=256, help='num of training epochs')
 parser.add_argument('--learning_rate', type=float, default=0.001, help='init learning rate')
 parser.add_argument('--momentum', type=float, default=0.9, help='momentum')
@@ -37,7 +37,7 @@ args = parser.parse_args()
 
 # CLASSES = 1000
 CLASSES = 10
-isCuda = False
+isCuda = True
 
 if not os.path.exists('log'):
     os.mkdir('log')
@@ -59,6 +59,7 @@ def main():
         logging.warning('No CUDA available')
         isCuda = False
     else:
+        logging.info('Using CUDA')
         isCuda = True
     start_t = time.time()
 
