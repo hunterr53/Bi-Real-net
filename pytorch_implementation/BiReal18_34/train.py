@@ -1,6 +1,7 @@
 import os
 import sys
 import shutil
+from matplotlib import pyplot as plt
 import numpy as np
 import time, datetime
 import torch
@@ -31,7 +32,7 @@ parser.add_argument('--weight_decay', type=float, default=0, help='weight decay'
 parser.add_argument('--save', type=str, default='./models', help='path for saving trained models')
 parser.add_argument('--data', metavar='DIR', help='path to dataset')
 parser.add_argument('--label_smooth', type=float, default=0.1, help='label smoothing')
-parser.add_argument('-j', '--workers', default=24, type=int, metavar='N',
+parser.add_argument('-j', '--workers', default=4, type=int, metavar='N',
                     help='number of data loading workers (default: 4)')
 args = parser.parse_args()
 
@@ -72,9 +73,9 @@ def main():
     logging.info(model)
     model = nn.DataParallel(model).cuda() if isCuda else nn.DataParallel(model).cpu()
 
-    criterion = nn.CrossEntropyLoss()
+    criterion = nn.CrossEntropyLoss() # Computes the cross entropy loss between input logits and target.
     criterion = criterion.cuda() if isCuda else criterion.cpu()
-    criterion_smooth = CrossEntropyLabelSmooth(CLASSES, args.label_smooth)
+    criterion_smooth = CrossEntropyLabelSmooth(CLASSES, args.label_smooth) # Restrains largest logit from getting to large at softmax
     criterion_smooth = criterion_smooth.cuda() if isCuda else criterion_smooth.cpu()
 
     all_parameters = model.parameters()
@@ -116,7 +117,7 @@ def main():
     # Added For MNIST
     mndata = MNIST('Datasets/MNIST/raw')
     train_images, train_labels = mndata.load_training()
-    # or
+    # and
     test_images, test_labels = mndata.load_testing()
 
     mnist_dataset = torchvision.datasets.MNIST(
@@ -139,7 +140,7 @@ def main():
         Lighting(lighting_param),
         transforms.RandomHorizontalFlip(),
         transforms.ToTensor(),
-        normalize])    
+        normalize])
     
     val_transforms = transforms.Compose([
         transforms.Resize(256),
@@ -175,8 +176,6 @@ def main():
     train_loader = torch.utils.data.DataLoader(
         train_dataset, batch_size=args.batch_size, shuffle=True,
         num_workers=args.workers, pin_memory=True)
-    
-
     
     # val_dataset = (mnist_dataset.test_data, mnist_dataset.test_labels)
     # val_dataset = torchvision.datasets.MNIST(
