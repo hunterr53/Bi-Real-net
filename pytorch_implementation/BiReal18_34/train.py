@@ -18,8 +18,10 @@ import torchvision
 #sys.path.append("../")
 from utils import *
 from torchvision import datasets, transforms
+from torchsummary import summary
 from torch.autograd import Variable
 from birealnet import birealnet18
+
 
 from mnist import MNIST
 
@@ -51,7 +53,7 @@ isCuda = True
 # logging.getLogger().addHandler(fh)
 
 log_format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-logging.basicConfig(filename='pytorch_implementation/BiReal18_34/log/log.txt', filemode='a', 
+logging.basicConfig(filename='pytorch_implementation/BiReal18_34/log/log.txt', filemode='w', 
                     level=logging.INFO, format=log_format, datefmt='%m/%d %I:%M:%S %p')
 
 def main():
@@ -72,6 +74,9 @@ def main():
     model = birealnet18()
     logging.info(model)
     model = nn.DataParallel(model).cuda() if isCuda else nn.DataParallel(model).cpu()
+
+    # Get model summary
+    summary(model, (3, 224, 224)) # 3x224x224
 
     criterion = nn.CrossEntropyLoss() # Computes the cross entropy loss between input logits and target.
     criterion = criterion.cuda() if isCuda else criterion.cpu()
