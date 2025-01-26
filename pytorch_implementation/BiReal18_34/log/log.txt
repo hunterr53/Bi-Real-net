@@ -1,3 +1,1368 @@
+<<<<<<< HEAD
+<<<<<<< HEAD
+12/28 12:48:06 PM - root - INFO - Using CUDA
+12/28 12:48:06 PM - root - INFO - args = Namespace(batch_size=256, epochs=256, learning_rate=0.001, momentum=0.9, weight_decay=0, save='./models', data=None, label_smooth=0.1, workers=18)
+12/28 12:48:06 PM - root - INFO - BiRealNet(
+  (conv1): Conv2d(3, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
+  (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+  (maxpool): MaxPool2d(kernel_size=3, stride=2, padding=1, dilation=1, ceil_mode=False)
+  (layer1): Sequential(
+    (0): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (1): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (2): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (3): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+  )
+  (layer2): Sequential(
+    (0): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (downsample): Sequential(
+        (0): AvgPool2d(kernel_size=2, stride=2, padding=0)
+        (1): Conv2d(64, 128, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (2): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      )
+    )
+    (1): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (2): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (3): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+  )
+  (layer3): Sequential(
+    (0): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (downsample): Sequential(
+        (0): AvgPool2d(kernel_size=2, stride=2, padding=0)
+        (1): Conv2d(128, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (2): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      )
+    )
+    (1): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (2): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (3): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+  )
+  (layer4): Sequential(
+    (0): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (downsample): Sequential(
+        (0): AvgPool2d(kernel_size=2, stride=2, padding=0)
+        (1): Conv2d(256, 512, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (2): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      )
+    )
+    (1): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (2): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (3): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+  )
+  (avgpool): AdaptiveAvgPool2d(output_size=(1, 1))
+  (fc): Linear(in_features=512, out_features=10, bias=True)
+)
+12/28 12:54:42 PM - root - INFO - Using CUDA
+12/28 12:54:42 PM - root - INFO - args = Namespace(batch_size=256, epochs=256, learning_rate=0.001, momentum=0.9, weight_decay=0, save='./models', data='Datasets/CIFAR10', label_smooth=0.1, workers=18)
+12/28 12:54:42 PM - root - INFO - BiRealNet(
+  (conv1): Conv2d(3, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
+  (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+  (maxpool): MaxPool2d(kernel_size=3, stride=2, padding=1, dilation=1, ceil_mode=False)
+  (layer1): Sequential(
+    (0): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (1): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (2): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (3): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+  )
+  (layer2): Sequential(
+    (0): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (downsample): Sequential(
+        (0): AvgPool2d(kernel_size=2, stride=2, padding=0)
+        (1): Conv2d(64, 128, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (2): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      )
+    )
+    (1): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (2): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (3): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+  )
+  (layer3): Sequential(
+    (0): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (downsample): Sequential(
+        (0): AvgPool2d(kernel_size=2, stride=2, padding=0)
+        (1): Conv2d(128, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (2): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      )
+    )
+    (1): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (2): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (3): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+  )
+  (layer4): Sequential(
+    (0): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (downsample): Sequential(
+        (0): AvgPool2d(kernel_size=2, stride=2, padding=0)
+        (1): Conv2d(256, 512, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (2): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      )
+    )
+    (1): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (2): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (3): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+  )
+  (avgpool): AdaptiveAvgPool2d(output_size=(1, 1))
+  (fc): Linear(in_features=512, out_features=10, bias=True)
+)
+12/28 03:26:58 PM - root - INFO - Using CUDA
+12/28 03:26:58 PM - root - INFO - args = Namespace(batch_size=128, epochs=256, learning_rate=0.001, momentum=0.9, weight_decay=0, save='./models', data=None, label_smooth=0.1, workers=18)
+12/28 03:26:58 PM - root - INFO - BiRealNet(
+  (conv1): Conv2d(3, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
+  (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+  (maxpool): MaxPool2d(kernel_size=3, stride=2, padding=1, dilation=1, ceil_mode=False)
+  (layer1): Sequential(
+    (0): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (1): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (2): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (3): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+  )
+  (layer2): Sequential(
+    (0): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (downsample): Sequential(
+        (0): AvgPool2d(kernel_size=2, stride=2, padding=0)
+        (1): Conv2d(64, 128, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (2): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      )
+    )
+    (1): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (2): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (3): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+  )
+  (layer3): Sequential(
+    (0): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (downsample): Sequential(
+        (0): AvgPool2d(kernel_size=2, stride=2, padding=0)
+        (1): Conv2d(128, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (2): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      )
+    )
+    (1): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (2): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (3): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+  )
+  (layer4): Sequential(
+    (0): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (downsample): Sequential(
+        (0): AvgPool2d(kernel_size=2, stride=2, padding=0)
+        (1): Conv2d(256, 512, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (2): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      )
+    )
+    (1): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (2): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (3): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+  )
+  (avgpool): AdaptiveAvgPool2d(output_size=(1, 1))
+  (fc): Linear(in_features=512, out_features=10, bias=True)
+)
+12/28 03:32:43 PM - root - INFO - Using CUDA
+12/28 03:32:43 PM - root - INFO - args = Namespace(batch_size=164, epochs=256, learning_rate=0.001, momentum=0.9, weight_decay=0, save='./models', data=None, label_smooth=0.1, workers=24)
+12/28 03:32:43 PM - root - INFO - BiRealNet(
+  (conv1): Conv2d(3, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
+  (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+  (maxpool): MaxPool2d(kernel_size=3, stride=2, padding=1, dilation=1, ceil_mode=False)
+  (layer1): Sequential(
+    (0): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (1): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (2): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (3): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+  )
+  (layer2): Sequential(
+    (0): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (downsample): Sequential(
+        (0): AvgPool2d(kernel_size=2, stride=2, padding=0)
+        (1): Conv2d(64, 128, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (2): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      )
+    )
+    (1): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (2): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (3): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+  )
+  (layer3): Sequential(
+    (0): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (downsample): Sequential(
+        (0): AvgPool2d(kernel_size=2, stride=2, padding=0)
+        (1): Conv2d(128, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (2): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      )
+    )
+    (1): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (2): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (3): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+  )
+  (layer4): Sequential(
+    (0): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (downsample): Sequential(
+        (0): AvgPool2d(kernel_size=2, stride=2, padding=0)
+        (1): Conv2d(256, 512, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (2): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      )
+    )
+    (1): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (2): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (3): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+  )
+  (avgpool): AdaptiveAvgPool2d(output_size=(1, 1))
+  (fc): Linear(in_features=512, out_features=10, bias=True)
+)
+12/28 03:32:43 PM - root - INFO - loading checkpoint ./models\checkpoint.pth.tar ..........
+12/28 03:32:43 PM - root - INFO - loaded checkpoint ./models\checkpoint.pth.tar epoch = 0
+12/28 06:16:13 PM - root - INFO - Using CUDA
+12/28 06:16:13 PM - root - INFO - args = Namespace(batch_size=164, epochs=256, learning_rate=0.001, momentum=0.9, weight_decay=0, save='./models', data=None, label_smooth=0.1, workers=24)
+12/28 06:16:13 PM - root - INFO - BiRealNet(
+  (conv1): Conv2d(3, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
+  (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+  (maxpool): MaxPool2d(kernel_size=3, stride=2, padding=1, dilation=1, ceil_mode=False)
+  (layer1): Sequential(
+    (0): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (1): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (2): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (3): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+  )
+  (layer2): Sequential(
+    (0): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (downsample): Sequential(
+        (0): AvgPool2d(kernel_size=2, stride=2, padding=0)
+        (1): Conv2d(64, 128, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (2): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      )
+    )
+    (1): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (2): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (3): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+  )
+  (layer3): Sequential(
+    (0): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (downsample): Sequential(
+        (0): AvgPool2d(kernel_size=2, stride=2, padding=0)
+        (1): Conv2d(128, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (2): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      )
+    )
+    (1): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (2): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (3): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+  )
+  (layer4): Sequential(
+    (0): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (downsample): Sequential(
+        (0): AvgPool2d(kernel_size=2, stride=2, padding=0)
+        (1): Conv2d(256, 512, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (2): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      )
+    )
+    (1): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (2): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (3): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+  )
+  (avgpool): AdaptiveAvgPool2d(output_size=(1, 1))
+  (fc): Linear(in_features=512, out_features=10, bias=True)
+)
+12/28 06:16:13 PM - root - INFO - loading checkpoint ./models\checkpoint.pth.tar ..........
+12/28 06:16:14 PM - root - INFO - loaded checkpoint ./models\checkpoint.pth.tar epoch = 3
+01/25 10:51:25 PM - root - INFO - Using CUDA
+01/25 10:51:26 PM - root - INFO - args = Namespace(batch_size=164, epochs=256, learning_rate=0.001, momentum=0.9, weight_decay=0, save='./models', data='Datasets/CIFAR10', label_smooth=0.1, workers=24)
+01/25 10:51:26 PM - root - INFO - BiRealNet(
+  (conv1): Conv2d(3, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
+  (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+  (maxpool): MaxPool2d(kernel_size=3, stride=2, padding=1, dilation=1, ceil_mode=False)
+  (layer1): Sequential(
+    (0): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (1): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (2): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (3): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+  )
+  (layer2): Sequential(
+    (0): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (downsample): Sequential(
+        (0): AvgPool2d(kernel_size=2, stride=2, padding=0)
+        (1): Conv2d(64, 128, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (2): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      )
+    )
+    (1): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (2): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (3): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+  )
+  (layer3): Sequential(
+    (0): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (downsample): Sequential(
+        (0): AvgPool2d(kernel_size=2, stride=2, padding=0)
+        (1): Conv2d(128, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (2): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      )
+    )
+    (1): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (2): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (3): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+  )
+  (layer4): Sequential(
+    (0): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (downsample): Sequential(
+        (0): AvgPool2d(kernel_size=2, stride=2, padding=0)
+        (1): Conv2d(256, 512, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (2): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      )
+    )
+    (1): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (2): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (3): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+  )
+  (avgpool): AdaptiveAvgPool2d(output_size=(1, 1))
+  (fc): Linear(in_features=512, out_features=10, bias=True)
+)
+01/25 10:51:26 PM - root - INFO - loading checkpoint ./models\checkpoint.pth.tar ..........
+01/25 10:51:27 PM - root - INFO - loaded checkpoint ./models\checkpoint.pth.tar epoch = 72
+01/25 10:52:22 PM - root - INFO - Using CUDA
+01/25 10:52:22 PM - root - INFO - args = Namespace(batch_size=164, epochs=256, learning_rate=0.001, momentum=0.9, weight_decay=0, save='./models', data='Datasets/CIFAR10', label_smooth=0.1, workers=24)
+01/25 10:52:22 PM - root - INFO - BiRealNet(
+  (conv1): Conv2d(3, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
+  (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+  (maxpool): MaxPool2d(kernel_size=3, stride=2, padding=1, dilation=1, ceil_mode=False)
+  (layer1): Sequential(
+    (0): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (1): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (2): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (3): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+  )
+  (layer2): Sequential(
+    (0): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (downsample): Sequential(
+        (0): AvgPool2d(kernel_size=2, stride=2, padding=0)
+        (1): Conv2d(64, 128, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (2): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      )
+    )
+    (1): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (2): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (3): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+  )
+  (layer3): Sequential(
+    (0): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (downsample): Sequential(
+        (0): AvgPool2d(kernel_size=2, stride=2, padding=0)
+        (1): Conv2d(128, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (2): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      )
+    )
+    (1): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (2): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (3): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+  )
+  (layer4): Sequential(
+    (0): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (downsample): Sequential(
+        (0): AvgPool2d(kernel_size=2, stride=2, padding=0)
+        (1): Conv2d(256, 512, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (2): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      )
+    )
+    (1): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (2): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (3): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+  )
+  (avgpool): AdaptiveAvgPool2d(output_size=(1, 1))
+  (fc): Linear(in_features=512, out_features=10, bias=True)
+)
+01/25 10:52:22 PM - root - INFO - loading checkpoint ./models\checkpoint.pth.tar ..........
+01/25 10:52:22 PM - root - INFO - loaded checkpoint ./models\checkpoint.pth.tar epoch = 72
+01/25 10:54:12 PM - root - INFO - Using CUDA
+01/25 10:54:12 PM - root - INFO - args = Namespace(batch_size=164, epochs=256, learning_rate=0.001, momentum=0.9, weight_decay=0, save='./models', data='Datasets/CIFAR10', label_smooth=0.1, workers=24)
+01/25 10:54:13 PM - root - INFO - BiRealNet(
+  (conv1): Conv2d(3, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
+  (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+  (maxpool): MaxPool2d(kernel_size=3, stride=2, padding=1, dilation=1, ceil_mode=False)
+  (layer1): Sequential(
+    (0): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (1): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (2): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (3): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+  )
+  (layer2): Sequential(
+    (0): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (downsample): Sequential(
+        (0): AvgPool2d(kernel_size=2, stride=2, padding=0)
+        (1): Conv2d(64, 128, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (2): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      )
+    )
+    (1): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (2): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (3): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+  )
+  (layer3): Sequential(
+    (0): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (downsample): Sequential(
+        (0): AvgPool2d(kernel_size=2, stride=2, padding=0)
+        (1): Conv2d(128, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (2): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      )
+    )
+    (1): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (2): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (3): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+  )
+  (layer4): Sequential(
+    (0): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (downsample): Sequential(
+        (0): AvgPool2d(kernel_size=2, stride=2, padding=0)
+        (1): Conv2d(256, 512, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (2): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      )
+    )
+    (1): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (2): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (3): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+  )
+  (avgpool): AdaptiveAvgPool2d(output_size=(1, 1))
+  (fc): Linear(in_features=512, out_features=10, bias=True)
+)
+01/25 10:54:13 PM - root - INFO - loading checkpoint ./models\checkpoint.pth.tar ..........
+01/25 10:54:13 PM - root - INFO - loaded checkpoint ./models\checkpoint.pth.tar epoch = 72
+01/25 10:54:43 PM - root - INFO - Using CUDA
+01/25 10:54:43 PM - root - INFO - args = Namespace(batch_size=164, epochs=256, learning_rate=0.001, momentum=0.9, weight_decay=0, save='./models', data='Datasets/CIFAR10', label_smooth=0.1, workers=24)
+01/25 10:54:43 PM - root - INFO - BiRealNet(
+  (conv1): Conv2d(3, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
+  (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+  (maxpool): MaxPool2d(kernel_size=3, stride=2, padding=1, dilation=1, ceil_mode=False)
+  (layer1): Sequential(
+    (0): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (1): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (2): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (3): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+  )
+  (layer2): Sequential(
+    (0): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (downsample): Sequential(
+        (0): AvgPool2d(kernel_size=2, stride=2, padding=0)
+        (1): Conv2d(64, 128, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (2): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      )
+    )
+    (1): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (2): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (3): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+  )
+  (layer3): Sequential(
+    (0): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (downsample): Sequential(
+        (0): AvgPool2d(kernel_size=2, stride=2, padding=0)
+        (1): Conv2d(128, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (2): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      )
+    )
+    (1): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (2): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (3): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+  )
+  (layer4): Sequential(
+    (0): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (downsample): Sequential(
+        (0): AvgPool2d(kernel_size=2, stride=2, padding=0)
+        (1): Conv2d(256, 512, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (2): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      )
+    )
+    (1): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (2): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (3): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+  )
+  (avgpool): AdaptiveAvgPool2d(output_size=(1, 1))
+  (fc): Linear(in_features=512, out_features=10, bias=True)
+)
+01/25 10:54:44 PM - root - INFO - loading checkpoint ./models\checkpoint.pth.tar ..........
+01/25 10:54:44 PM - root - INFO - loaded checkpoint ./models\checkpoint.pth.tar epoch = 72
+01/25 10:55:55 PM - root - INFO - Using CUDA
+01/25 10:55:55 PM - root - INFO - args = Namespace(batch_size=164, epochs=256, learning_rate=0.001, momentum=0.9, weight_decay=0, save='./models', data='Datasets/CIFAR10', label_smooth=0.1, workers=24)
+01/25 10:55:55 PM - root - INFO - BiRealNet(
+  (conv1): Conv2d(3, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
+  (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+  (maxpool): MaxPool2d(kernel_size=3, stride=2, padding=1, dilation=1, ceil_mode=False)
+  (layer1): Sequential(
+    (0): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (1): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (2): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (3): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+  )
+  (layer2): Sequential(
+    (0): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (downsample): Sequential(
+        (0): AvgPool2d(kernel_size=2, stride=2, padding=0)
+        (1): Conv2d(64, 128, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (2): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      )
+    )
+    (1): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (2): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (3): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+  )
+  (layer3): Sequential(
+    (0): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (downsample): Sequential(
+        (0): AvgPool2d(kernel_size=2, stride=2, padding=0)
+        (1): Conv2d(128, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (2): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      )
+    )
+    (1): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (2): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (3): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+  )
+  (layer4): Sequential(
+    (0): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (downsample): Sequential(
+        (0): AvgPool2d(kernel_size=2, stride=2, padding=0)
+        (1): Conv2d(256, 512, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (2): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      )
+    )
+    (1): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (2): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (3): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+  )
+  (avgpool): AdaptiveAvgPool2d(output_size=(1, 1))
+  (fc): Linear(in_features=512, out_features=10, bias=True)
+)
+01/25 10:55:55 PM - root - INFO - loading checkpoint ./models\checkpoint.pth.tar ..........
+01/25 10:55:55 PM - root - INFO - loaded checkpoint ./models\checkpoint.pth.tar epoch = 72
+01/25 10:56:15 PM - root - INFO - Using CUDA
+01/25 10:56:15 PM - root - INFO - args = Namespace(batch_size=164, epochs=256, learning_rate=0.001, momentum=0.9, weight_decay=0, save='./models', data='Datasets/CIFAR10', label_smooth=0.1, workers=24)
+01/25 10:56:15 PM - root - INFO - BiRealNet(
+  (conv1): Conv2d(3, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
+  (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+  (maxpool): MaxPool2d(kernel_size=3, stride=2, padding=1, dilation=1, ceil_mode=False)
+  (layer1): Sequential(
+    (0): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (1): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (2): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (3): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+  )
+  (layer2): Sequential(
+    (0): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (downsample): Sequential(
+        (0): AvgPool2d(kernel_size=2, stride=2, padding=0)
+        (1): Conv2d(64, 128, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (2): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      )
+    )
+    (1): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (2): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (3): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+  )
+  (layer3): Sequential(
+    (0): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (downsample): Sequential(
+        (0): AvgPool2d(kernel_size=2, stride=2, padding=0)
+        (1): Conv2d(128, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (2): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      )
+    )
+    (1): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (2): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (3): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+  )
+  (layer4): Sequential(
+    (0): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (downsample): Sequential(
+        (0): AvgPool2d(kernel_size=2, stride=2, padding=0)
+        (1): Conv2d(256, 512, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (2): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      )
+    )
+    (1): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (2): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (3): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+  )
+  (avgpool): AdaptiveAvgPool2d(output_size=(1, 1))
+  (fc): Linear(in_features=512, out_features=10, bias=True)
+)
+01/25 10:56:15 PM - root - INFO - loading checkpoint ./models\checkpoint.pth.tar ..........
+01/25 10:56:15 PM - root - INFO - loaded checkpoint ./models\checkpoint.pth.tar epoch = 72
+01/25 10:57:10 PM - root - INFO - Using CUDA
+01/25 10:57:10 PM - root - INFO - args = Namespace(batch_size=164, epochs=256, learning_rate=0.001, momentum=0.9, weight_decay=0, save='./models', data='Datasets/CIFAR10', label_smooth=0.1, workers=24)
+01/25 10:57:10 PM - root - INFO - BiRealNet(
+  (conv1): Conv2d(3, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
+  (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+  (maxpool): MaxPool2d(kernel_size=3, stride=2, padding=1, dilation=1, ceil_mode=False)
+  (layer1): Sequential(
+    (0): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (1): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (2): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (3): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+  )
+  (layer2): Sequential(
+    (0): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (downsample): Sequential(
+        (0): AvgPool2d(kernel_size=2, stride=2, padding=0)
+        (1): Conv2d(64, 128, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (2): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      )
+    )
+    (1): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (2): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (3): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+  )
+  (layer3): Sequential(
+    (0): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (downsample): Sequential(
+        (0): AvgPool2d(kernel_size=2, stride=2, padding=0)
+        (1): Conv2d(128, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (2): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      )
+    )
+    (1): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (2): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (3): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+  )
+  (layer4): Sequential(
+    (0): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (downsample): Sequential(
+        (0): AvgPool2d(kernel_size=2, stride=2, padding=0)
+        (1): Conv2d(256, 512, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (2): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      )
+    )
+    (1): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (2): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (3): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+  )
+  (avgpool): AdaptiveAvgPool2d(output_size=(1, 1))
+  (fc): Linear(in_features=512, out_features=10, bias=True)
+)
+01/25 10:57:10 PM - root - INFO - loading checkpoint ./models\checkpoint.pth.tar ..........
+01/25 10:57:10 PM - root - INFO - loaded checkpoint ./models\checkpoint.pth.tar epoch = 72
+=======
 01/21 06:36:55 PM - root - WARNING - No CUDA available
 01/21 06:36:55 PM - root - INFO - args = Namespace(batch_size=164, epochs=256, learning_rate=0.001, momentum=0.9, weight_decay=0, save='./models', data='Datasets/CIFAR10', label_smooth=0.1, workers=4)
 01/21 06:36:56 PM - root - INFO - BiRealNet(
@@ -110,3 +1475,118 @@
   (avgpool): AdaptiveAvgPool2d(output_size=(1, 1))
   (fc): Linear(in_features=512, out_features=10, bias=True)
 )
+>>>>>>> 52a36ff95e35ef1b463e258c95638f285d755d7e
+=======
+01/21 06:36:55 PM - root - WARNING - No CUDA available
+01/21 06:36:55 PM - root - INFO - args = Namespace(batch_size=164, epochs=256, learning_rate=0.001, momentum=0.9, weight_decay=0, save='./models', data='Datasets/CIFAR10', label_smooth=0.1, workers=4)
+01/21 06:36:56 PM - root - INFO - BiRealNet(
+  (conv1): Conv2d(3, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
+  (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+  (maxpool): MaxPool2d(kernel_size=3, stride=2, padding=1, dilation=1, ceil_mode=False)
+  (layer1): Sequential(
+    (0): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (1): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (2): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (3): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+  )
+  (layer2): Sequential(
+    (0): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (downsample): Sequential(
+        (0): AvgPool2d(kernel_size=2, stride=2, padding=0)
+        (1): Conv2d(64, 128, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (2): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      )
+    )
+    (1): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (2): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (3): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+  )
+  (layer3): Sequential(
+    (0): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (downsample): Sequential(
+        (0): AvgPool2d(kernel_size=2, stride=2, padding=0)
+        (1): Conv2d(128, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (2): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      )
+    )
+    (1): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (2): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (3): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+  )
+  (layer4): Sequential(
+    (0): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (downsample): Sequential(
+        (0): AvgPool2d(kernel_size=2, stride=2, padding=0)
+        (1): Conv2d(256, 512, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (2): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      )
+    )
+    (1): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (2): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (3): BasicBlock(
+      (binary_activation): BinaryActivation()
+      (binary_conv): HardBinaryConv()
+      (bn1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+  )
+  (avgpool): AdaptiveAvgPool2d(output_size=(1, 1))
+  (fc): Linear(in_features=512, out_features=10, bias=True)
+)
+>>>>>>> 52a36ff95e35ef1b463e258c95638f285d755d7e

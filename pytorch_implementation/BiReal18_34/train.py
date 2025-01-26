@@ -201,6 +201,7 @@ def main():
     # train the model
     epoch = start_epoch
     while epoch < args.epochs:
+        saveWeights(model)
         train_obj, train_top1_acc,  train_top5_acc = train(epoch,  train_loader, model, criterion_smooth, optimizer, scheduler)
         valid_obj, valid_top1_acc, valid_top5_acc = validate(epoch, val_loader, model, criterion, args)
 
@@ -311,6 +312,57 @@ def validate(epoch, val_loader, model, criterion, args):
 
     return losses.avg, top1.avg, top5.avg
 
+def saveWeights(net):    
+    net = net.cpu()
+    #Save weights to CSV file
+    import pandas as pd
+    outputLayer = False
+    firstNode = True
+    firstNodeWeights = ''
+    # weights = net.state_dict()
+    with open('pytorch_implementation\BiReal18_34\savedWeights\BiRealNetPreTrainedWeights.txt', "w+") as output:
+        for name, param in net.named_parameters():
+            print(name)
+            weights = param.data.numpy()
+            print(weights)
+            # output.write(name + "\n" + str(weights) + "\n")
+            output.write(name + "\n")
+            if "bias" in name:
+                print("bias size:", weights.size)
+                for weight in weights:
+                    output.write(str(weight) + " ")
+                output.write("\n")
+            elif "conv" in name:
+                print("conv size:", weights.size)
+                for weight in weights:
+                    for weight2 in weight:
+                        for weight3 in weight2:
+                            for weight4 in weight3:
+                                output.write(str(weight4) + " ")
+                        # output.write(str(weight2) + " ")
+                output.write("\n")
+            else: # FFN
+                print("FFN size:", weights.size)
+                print("FFN shape:", weights.shape)
+                if(outputLayer):
+                    numNeurons = 10
+                else:
+                    numNeurons = 50
+                    outputLayer = True
+
+                for weight in weights:
+                    for weight2 in weight:
+                        output.write(str(weight2) + " ")
+                        if(firstNode):
+                            print(weight2)
+                            firstNodeWeights = firstNodeWeights + (str(weight2) + "\n")
+
+                    if(firstNode):
+                            firstNode = False
+                            
+                output.write("\n")
+
+    net = net.cuda() if isCuda else net.cpu()
 
 if __name__ == '__main__':
     main()
