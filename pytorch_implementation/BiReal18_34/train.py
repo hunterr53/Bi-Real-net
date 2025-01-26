@@ -319,10 +319,20 @@ def saveWeights(net):
     outputLayer = False
     firstNode = True
     firstNodeWeights = ''
-    # weights = net.state_dict()
+    stateDict = net.state_dict()
+
+    print("Model's state_dict:")
+    for param_tensor in stateDict:
+        print(param_tensor, "\t\t", stateDict[param_tensor].size())
+    
+    print("\nModel's named_parameters:")
+    for name, param in net.named_parameters():
+        print(name, "\t", param.size())
+
+    print("\nWrite Model Weights/Bias to file:")
     with open('pytorch_implementation\BiReal18_34\savedWeights\BiRealNetPreTrainedWeights.txt', "w+") as output:
         for name, param in net.named_parameters():
-            print(name)
+            print(name, "\t", param.size())
             weights = param.data.numpy()
             print(weights)
             # output.write(name + "\n" + str(weights) + "\n")
@@ -347,7 +357,7 @@ def saveWeights(net):
                 if(outputLayer):
                     numNeurons = 10
                 else:
-                    numNeurons = 50
+                    numNeurons = 1000
                     outputLayer = True
 
                 for weight in weights:
