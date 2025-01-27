@@ -201,7 +201,7 @@ def main():
     # train the model
     epoch = start_epoch
     while epoch < args.epochs:
-        saveWeights(model)
+        saveWeights(model, isCuda)
         train_obj, train_top1_acc,  train_top5_acc = train(epoch,  train_loader, model, criterion_smooth, optimizer, scheduler)
         valid_obj, valid_top1_acc, valid_top5_acc = validate(epoch, val_loader, model, criterion, args)
 
@@ -312,7 +312,7 @@ def validate(epoch, val_loader, model, criterion, args):
 
     return losses.avg, top1.avg, top5.avg
 
-def saveWeights(net):    
+def saveWeights(net, isCuda):    
     net = net.cpu()
     #Save weights to CSV file
     import pandas as pd
@@ -334,7 +334,7 @@ def saveWeights(net):
         for name, param in net.named_parameters():
             print(name, "\t", param.size())
             weights = param.data.numpy()
-            print(weights)
+            # print(weights)
             # output.write(name + "\n" + str(weights) + "\n")
             output.write(name + "\n")
             if "bias" in name:
@@ -342,16 +342,24 @@ def saveWeights(net):
                 for weight in weights:
                     output.write(str(weight) + " ")
                 output.write("\n")
+
+            elif "binary_conv" in name:
+                print("conv size:", weights.size)
+                for weight in weights: # (x, 1)
+                    for weight2 in weight:
+                        output.write(str(weight2) + " ")
+                output.write("\n")
+
             elif "conv" in name:
                 print("conv size:", weights.size)
-                for weight in weights:
-                    for weight2 in weight:
-                        for weight3 in weight2:
-                            for weight4 in weight3:
+                for weight in weights: # (x, 1, 1, 1)
+                    for weight2 in weight: # (1, x, 1, 1)
+                        for weight3 in weight2: # (1, 1, x, 1)
+                            for weight4 in weight3: # (1, 1, 1, x)
                                 output.write(str(weight4) + " ")
                         # output.write(str(weight2) + " ")
                 output.write("\n")
-            else: # FFN
+            elif "fc" in name: # FFN
                 print("FFN size:", weights.size)
                 print("FFN shape:", weights.shape)
                 if(outputLayer):
@@ -371,6 +379,28 @@ def saveWeights(net):
                             firstNode = False
                             
                 output.write("\n")
+            elif "bn" in name:
+                print("BN weight:", weights.size)
+                for weight in weights:
+                    output.write(str(weight) + " ")
+                output.write("\n")
+
+            elif "downsample" in name:
+                print("Downsample weight:", weights.size)
+                for weight in weights: # (x, 1, 1, 1)
+                    if(len(weights.shape) == 4):
+                        for weight2 in weight: # (1, x, 1, 1)
+                            for weight3 in weight2: # (1, 1, x, 1)
+                                for weight4 in weight3: # (1, 1, 1, x)
+                                    output.write(str(weight4) + " ")
+                    else:
+                        output.write(str(weight) + " ")
+                output.write("\n")
+
+            else:
+                print("Unknown layer", name)
+                exit(1)
+
 
     net = net.cuda() if isCuda else net.cpu()
 

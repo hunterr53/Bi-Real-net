@@ -1,4 +1,4 @@
 /Datasets/*
-/pytoch_implementation/BiReal18_34/_pycache_/*
 /models*
-/pytoch_implementation/BiReal18_34/_pycache_/*
+pytoch_implementation/BiReal18_34/_pycache_/*
+pytorch_implementation/BiReal18_34/savedWeights/*
