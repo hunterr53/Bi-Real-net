@@ -25,6 +25,9 @@ from birealnet import birealnet18
 
 from mnist import MNIST
 
+# Seed
+random.seed(10)
+
 parser = argparse.ArgumentParser("birealnet")
 parser.add_argument('--batch_size', type=int, default=164, help='batch size')
 parser.add_argument('--epochs', type=int, default=256, help='num of training epochs')
