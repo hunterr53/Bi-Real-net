@@ -123,7 +123,10 @@ class BiRealNet(nn.Module):
         return nn.Sequential(*layers)
 
     def forward(self, x):
+        print('Input', x.shape)
         x = self.conv1(x)
+        print('Conv1', x.shape)
+
         x = self.bn1(x)
         x = self.maxpool(x)
 
