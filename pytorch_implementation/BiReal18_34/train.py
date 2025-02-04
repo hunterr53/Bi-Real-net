@@ -426,30 +426,36 @@ def saveWeights(net, isCuda):
     print("\nWrite Model BN Mean/Var to file:")
     with open('pytorch_implementation\BiReal18_34\savedWeights\BiRealNetPreTrainedBN.txt', "w+") as output:
         # print("Input Running Mean", net.module.bn1.running_mean.shape)
+        output.write("bn1.running_mean\n")
         for mean in net.module.bn1.running_mean:
             output.write(str(mean.numpy()) + " ")
         output.write("\n")
         # print("Input Running Var", net.module.bn1.running_var.shape)
+        output.write("bn1.running_var\n")
         for var in net.module.bn1.running_var:
             output.write(str(var.numpy()) + " ")
         output.write("test")
         
         for i in range(0, 4): # Layer 1
             # print("BN layer1." +  str(i) + ".bn1.Running Mean")
+            output.write("net.module.layer1" + str(i) + ".running_mean\n")
             for mean in net.module.layer1[i].bn1.running_mean:
                 output.write(str(mean.numpy()) + " ")
             output.write("\n")
             # print("BN layer1." + str(i) + ".bn1.Running Var")
+            output.write("net.module.layer1" + str(i) + ".running_var\n")
             for var in net.module.layer1[i].bn1.running_var:
                 output.write(str(var.numpy()) + " ")
             output.write("\n")
 
         for i in range(0, 4): # Layer 2
             # print("BN layer2." +  str(i) + ".bn1.Running Mean")
+            output.write("net.module.layer2" + str(i) + ".running_mean\n")
             for mean in net.module.layer1[i].bn1.running_mean:
                 output.write(str(mean.numpy()) + " ")
             output.write("\n")
             # print("BN layer2." + str(i) + ".bn1.Running Var")
+            output.write("net.module.layer2" + str(i) + ".running_var\n")
             for var in net.module.layer1[i].bn1.running_var:
                 output.write(str(var.numpy()) + " ")
             output.write("\n")
@@ -465,10 +471,12 @@ def saveWeights(net, isCuda):
 
         for i in range(0, 4): # Layer 3
             # print("BN layer3." +  str(i) + ".bn1.Running Mean")
+            output.write("net.module.layer3" + str(i) + ".running_mean\n")
             for mean in net.module.layer1[i].bn1.running_mean:
                 output.write(str(mean.numpy()) + " ")
             output.write("\n")
             # print("BN layer3." + str(i) + ".bn1.Running Var")
+            output.write("net.module.layer3" + str(i) + ".running_var\n")
             for var in net.module.layer1[i].bn1.running_var:
                 output.write(str(var.numpy()) + " ")
             output.write("\n")
@@ -484,10 +492,12 @@ def saveWeights(net, isCuda):
             
         for i in range(0, 4): # Layer 4
             # print("BN layer4." +  str(i) + ".bn1.Running Mean")
+            output.write("net.module.layer4" + str(i) + ".running_mean\n")
             for mean in net.module.layer1[i].bn1.running_mean:
                 output.write(str(mean.numpy()) + " ")
             output.write("\n")
             # print("BN layer4." + str(i) + ".bn1.Running Var")
+            output.write("net.module.layer4" + str(i) + ".running_var\n")
             for var in net.module.layer1[i].bn1.running_var:
                 output.write(str(var.numpy()) + " ")
             output.write("\n")
