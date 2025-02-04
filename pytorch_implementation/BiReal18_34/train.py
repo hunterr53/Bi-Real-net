@@ -330,83 +330,151 @@ def saveWeights(net, isCuda):
 
     print("\nWrite Model Weights/Bias to file:")
     with open('pytorch_implementation\BiReal18_34\savedWeights\BiRealNetPreTrainedWeights.txt', "w+") as output:
-        # for name, param in net.named_parameters():
-        #     print(name, "\t", param.size())
-        #     weights = param.data.numpy()
-        #     # print(weights)
-        #     # output.write(name + "\n" + str(weights) + "\n")
-        #     output.write(name + "\n")
-        #     if "bias" in name:
-        #         print("bias size:", weights.size)
-        #         for weight in weights:
-        #             output.write(str(weight) + " ")
-        #         output.write("\n")
+        bnDebugCounter = 0
+        downsampleDebugCounter = 0
+        fcDebugCounter = 0
+        for name, param in net.named_parameters():
+            break #debug
+            print(name, "\t", param.size())
+            weights = param.data.numpy()
+            # print(weights)
+            # output.write(name + "\n" + str(weights) + "\n")
+            output.write(name + "\n")
+            # if "bias" in name:
+            #     print("bias size:", weights.size)
+            #     for weight in weights:
+            #         output.write(str(weight) + " ")
+            #     output.write("\n")
 
-        #     elif "binary_conv" in name:
-        #         print("conv size:", weights.size)
-        #         for weight in weights: # (x, 1)
-        #             for weight2 in weight:
-        #                 output.write(str(weight2) + " ")
-        #         output.write("\n")
+            if "binary_conv" in name:
+                print("conv size:", weights.size)
+                for weight in weights: # (x, 1)
+                    for weight2 in weight:
+                        output.write(str(weight2) + " ")
+                output.write("\n")
 
-        #     elif "conv" in name:
-        #         print("conv size:", weights.size)
-        #         for weight in weights: # (x, 1, 1, 1)
-        #             for weight2 in weight: # (1, x, 1, 1)
-        #                 for weight3 in weight2: # (1, 1, x, 1)
-        #                     for weight4 in weight3: # (1, 1, 1, x)
-        #                         output.write(str(weight4) + " ")
-        #                 # output.write(str(weight2) + " ")
-        #         output.write("\n")
-        #     elif "fc" in name: # FFN
-        #         print("FFN size:", weights.size)
-        #         print("FFN shape:", weights.shape)
-        #         if(outputLayer):
-        #             numNeurons = 10
-        #         else:
-        #             numNeurons = 1000
-        #             outputLayer = True
+            elif "conv1" in name:
+                print("conv size:", weights.size)
+                for weight in weights: # (x, 1, 1, 1)
+                    for weight2 in weight: # (1, x, 1, 1)
+                        for weight3 in weight2: # (1, 1, x, 1)
+                            for weight4 in weight3: # (1, 1, 1, x)
+                                output.write(str(weight4) + " ")
+                        # output.write(str(weight2) + " ")
+                output.write("\n")
+            elif "fc" in name: # FFN
+                fcDebugCounter += 1
+                if "bias" in name:
+                    print("bias size:", weights.size)
+                    for weight in weights:
+                        output.write(str(weight) + " ")
+                    output.write("\n")
+                else:
+                    print("FFN size:", weights.size)
+                    print("FFN shape:", weights.shape)
+                    if(outputLayer):
+                        numNeurons = 10
+                    else:
+                        numNeurons = 1000
+                        outputLayer = True
 
-        #         for weight in weights:
-        #             for weight2 in weight:
-        #                 output.write(str(weight2) + " ")
-        #                 if(firstNode):
-        #                     print(weight2)
-        #                     firstNodeWeights = firstNodeWeights + (str(weight2) + "\n")
+                    for weight in weights:
+                        for weight2 in weight:
+                            output.write(str(weight2) + " ")
+                            if(firstNode):
+                                # print(weight2)
+                                firstNodeWeights = firstNodeWeights + (str(weight2) + "\n")
 
-        #             if(firstNode):
-        #                     firstNode = False
+                        if(firstNode):
+                                firstNode = False
                             
-        #         output.write("\n")
-        #     elif "bn" in name:
-        #         print("BN weight:", weights.size)
-        #         for weight in weights:
-        #             output.write(str(weight) + " ")
-        #         output.write("\n")
+                    output.write("\n")
+            elif "bn" in name:
+                bnDebugCounter += 1
+                if "bias" in name:
+                    print("bias size:", weights.size)
+                    for weight in weights:
+                        output.write(str(weight) + " ")
+                    output.write("\n")
+                else:
+                    print("BN weight:", weights.size)
+                    for weight in weights:
+                        output.write(str(weight) + " ")
+                    output.write("\n")
 
-        #     elif "downsample" in name:
-        #         print("Downsample weight:", weights.size)
-        #         for weight in weights: # (x, 1, 1, 1)
-        #             if(len(weights.shape) == 4):
-        #                 for weight2 in weight: # (1, x, 1, 1)
-        #                     for weight3 in weight2: # (1, 1, x, 1)
-        #                         for weight4 in weight3: # (1, 1, 1, x)
-        #                             output.write(str(weight4) + " ")
-        #             else:
-        #                 output.write(str(weight) + " ")
-        #         output.write("\n")
+            elif "downsample" in name:
+                downsampleDebugCounter += 1
+                print("Downsample weight:", weights.size)
+                for weight in weights: # (x, 1, 1, 1)
+                    if(len(weights.shape) == 4):
+                        for weight2 in weight: # (1, x, 1, 1)
+                            for weight3 in weight2: # (1, 1, x, 1)
+                                for weight4 in weight3: # (1, 1, 1, x)
+                                    output.write(str(weight4) + " ")
+                    else: # batch norm
+                        output.write(str(weight) + " ")
+                output.write("\n")
 
-        #     else:
-        #         print("Unknown layer", name)
-        #         exit(1)
+            else:
+                print("Unknown layer", name)
+                exit(1)
 
-        print("Running Mean", net.module.bn1.running_mean)
+        print("BN Debug Counter:", bnDebugCounter)
+        print("Downsample Debug Counter:", downsampleDebugCounter)
+        print("FC Debug Counter:", fcDebugCounter)
+
+    print("\nWrite Model BN Mean/Var to file:")
+    with open('pytorch_implementation\BiReal18_34\savedWeights\BiRealNetPreTrainedBN.txt', "w+") as output:
+        print("Running Mean", net.module.bn1.running_mean.shape)
         for mean in net.module.bn1.running_mean:
             output.write(str(mean) + " ")
         output.write("\n")
-        print("Running Var", net.module.bn1.running_var)
+        print("Running Var", net.module.bn1.running_var.shape)
         for var in net.module.bn1.running_var:
             output.write(str(var) + " ")
+        
+        for i in range(0, 4): # Layer 1
+            print("BN layer1." +  str(i) + "bn1.Running Mean")
+            for mean in net.module.layer1[i].bn1.running_mean:
+                output.write(str(mean) + " ")
+            output.write("\n")
+            print("BN layer1." + str(i), "bn1.Running Var")
+            for var in net.module.layer1[i].bn1.running_var:
+                output.write(str(var) + " ")
+            output.write("\n")
+
+        for i in range(0, 4): # Layer 2
+            print("BN layer2." +  str(i) + "bn1.Running Mean")
+            for mean in net.module.layer1[i].bn1.running_mean:
+                output.write(str(mean) + " ")
+            output.write("\n")
+            print("BN layer2." + str(i), "bn1.Running Var")
+            for var in net.module.layer1[i].bn1.running_var:
+                output.write(str(var) + " ")
+            output.write("\n")
+
+        for i in range(0, 4): # Layer 3
+            print("BN layer3." +  str(i) + "bn1.Running Mean")
+            for mean in net.module.layer1[i].bn1.running_mean:
+                output.write(str(mean) + " ")
+            output.write("\n")
+            print("BN layer3." + str(i), "bn1.Running Var")
+            for var in net.module.layer1[i].bn1.running_var:
+                output.write(str(var) + " ")
+            output.write("\n")
+            
+        for i in range(0, 4): # Layer 4
+            print("BN layer4." +  str(i) + "bn1.Running Mean")
+            for mean in net.module.layer1[i].bn1.running_mean:
+                output.write(str(mean) + " ")
+            output.write("\n")
+            print("BN layer4." + str(i), "bn1.Running Var")
+            for var in net.module.layer1[i].bn1.running_var:
+                output.write(str(var) + " ")
+            output.write("\n")
+
+        for i in range(1, 4): # for each layer
+            for mean in net.m
 
     net = net.cuda() if isCuda else net.cpu()
 
