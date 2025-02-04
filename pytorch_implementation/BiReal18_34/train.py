@@ -425,56 +425,81 @@ def saveWeights(net, isCuda):
 
     print("\nWrite Model BN Mean/Var to file:")
     with open('pytorch_implementation\BiReal18_34\savedWeights\BiRealNetPreTrainedBN.txt', "w+") as output:
-        print("Running Mean", net.module.bn1.running_mean.shape)
+        # print("Input Running Mean", net.module.bn1.running_mean.shape)
         for mean in net.module.bn1.running_mean:
-            output.write(str(mean) + " ")
+            output.write(str(mean.numpy()) + " ")
         output.write("\n")
-        print("Running Var", net.module.bn1.running_var.shape)
+        # print("Input Running Var", net.module.bn1.running_var.shape)
         for var in net.module.bn1.running_var:
-            output.write(str(var) + " ")
+            output.write(str(var.numpy()) + " ")
+        output.write("test")
         
         for i in range(0, 4): # Layer 1
-            print("BN layer1." +  str(i) + "bn1.Running Mean")
+            # print("BN layer1." +  str(i) + ".bn1.Running Mean")
             for mean in net.module.layer1[i].bn1.running_mean:
-                output.write(str(mean) + " ")
+                output.write(str(mean.numpy()) + " ")
             output.write("\n")
-            print("BN layer1." + str(i), "bn1.Running Var")
+            # print("BN layer1." + str(i) + ".bn1.Running Var")
             for var in net.module.layer1[i].bn1.running_var:
-                output.write(str(var) + " ")
+                output.write(str(var.numpy()) + " ")
             output.write("\n")
 
         for i in range(0, 4): # Layer 2
-            print("BN layer2." +  str(i) + "bn1.Running Mean")
+            # print("BN layer2." +  str(i) + ".bn1.Running Mean")
             for mean in net.module.layer1[i].bn1.running_mean:
-                output.write(str(mean) + " ")
+                output.write(str(mean.numpy()) + " ")
             output.write("\n")
-            print("BN layer2." + str(i), "bn1.Running Var")
+            # print("BN layer2." + str(i) + ".bn1.Running Var")
             for var in net.module.layer1[i].bn1.running_var:
-                output.write(str(var) + " ")
+                output.write(str(var.numpy()) + " ")
             output.write("\n")
+            if i == 0: # Get downsample
+                # print("Downsample layer2." +  str(i) + ".downsample.module2.Running Mean")
+                for mean in net.module.layer2[i].downsample[2].running_mean:
+                    output.write(str(mean.numpy()) + " ")
+                output.write("\n")
+                # print("BN layer2." + str(i) + ".downsample.module2.Running Var")
+                for var in net.module.layer2[i].downsample[2].running_var:
+                    output.write(str(var.numpy()) + " ")
+                output.write("\n")
 
         for i in range(0, 4): # Layer 3
-            print("BN layer3." +  str(i) + "bn1.Running Mean")
+            # print("BN layer3." +  str(i) + ".bn1.Running Mean")
             for mean in net.module.layer1[i].bn1.running_mean:
-                output.write(str(mean) + " ")
+                output.write(str(mean.numpy()) + " ")
             output.write("\n")
-            print("BN layer3." + str(i), "bn1.Running Var")
+            # print("BN layer3." + str(i) + ".bn1.Running Var")
             for var in net.module.layer1[i].bn1.running_var:
-                output.write(str(var) + " ")
+                output.write(str(var.numpy()) + " ")
             output.write("\n")
+            if i == 0: # Get downsample
+                # print("Downsample layer3." +  str(i) + ".downsample.module2.Running Mean")
+                for mean in net.module.layer3[i].downsample[2].running_mean:
+                    output.write(str(mean.numpy()) + " ")
+                output.write("\n")
+                # print("BN layer3." + str(i) + ".downsample.module2.Running Var")
+                for var in net.module.layer3[i].downsample[2].running_var:
+                    output.write(str(var.numpy()) + " ")
+                output.write("\n")
             
         for i in range(0, 4): # Layer 4
-            print("BN layer4." +  str(i) + "bn1.Running Mean")
+            # print("BN layer4." +  str(i) + ".bn1.Running Mean")
             for mean in net.module.layer1[i].bn1.running_mean:
-                output.write(str(mean) + " ")
+                output.write(str(mean.numpy()) + " ")
             output.write("\n")
-            print("BN layer4." + str(i), "bn1.Running Var")
+            # print("BN layer4." + str(i) + ".bn1.Running Var")
             for var in net.module.layer1[i].bn1.running_var:
-                output.write(str(var) + " ")
+                output.write(str(var.numpy()) + " ")
             output.write("\n")
-
-        for i in range(1, 4): # for each layer
-            for mean in net.m
+            if i == 0: # Get downsample
+                # print("Downsample layer4." +  str(i) + ".downsample.module2.Running Mean")
+                for mean in net.module.layer4[i].downsample[2].running_mean:
+                    output.write(str(mean.numpy()) + " ")
+                output.write("\n")
+                # print("BN layer4." + str(i) + ".downsample.module2.Running Var")
+                for var in net.module.layer4[i].downsample[2].running_var:
+                    output.write(str(var.numpy()) + " ")
+                output.write("\n")
 
     net = net.cuda() if isCuda else net.cpu()
 
