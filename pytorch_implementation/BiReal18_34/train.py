@@ -334,7 +334,7 @@ def saveWeights(net, isCuda):
         downsampleDebugCounter = 0
         fcDebugCounter = 0
         for name, param in net.named_parameters():
-            break #debug
+            # break #debug
             print(name, "\t", param.size())
             weights = param.data.numpy()
             # print(weights)
