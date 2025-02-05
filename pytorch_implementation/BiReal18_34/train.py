@@ -434,79 +434,85 @@ def saveWeights(net, isCuda):
         output.write("bn1.running_var\n")
         for var in net.module.bn1.running_var:
             output.write(str(var.numpy()) + " ")
-        output.write("test")
+        output.write("\n")
         
         for i in range(0, 4): # Layer 1
             # print("BN layer1." +  str(i) + ".bn1.Running Mean")
-            output.write("net.module.layer1" + str(i) + ".running_mean\n")
+            output.write("net.module.layer1." + str(i) + ".bn1.running_mean\n")
             for mean in net.module.layer1[i].bn1.running_mean:
                 output.write(str(mean.numpy()) + " ")
             output.write("\n")
             # print("BN layer1." + str(i) + ".bn1.Running Var")
-            output.write("net.module.layer1" + str(i) + ".running_var\n")
+            output.write("net.module.layer1." + str(i) + ".bn1.running_var\n")
             for var in net.module.layer1[i].bn1.running_var:
                 output.write(str(var.numpy()) + " ")
             output.write("\n")
 
         for i in range(0, 4): # Layer 2
             # print("BN layer2." +  str(i) + ".bn1.Running Mean")
-            output.write("net.module.layer2" + str(i) + ".running_mean\n")
-            for mean in net.module.layer1[i].bn1.running_mean:
+            output.write("net.module.layer2." + str(i) + ".bn1.running_mean\n")
+            for mean in net.module.layer2[i].bn1.running_mean:
                 output.write(str(mean.numpy()) + " ")
             output.write("\n")
             # print("BN layer2." + str(i) + ".bn1.Running Var")
-            output.write("net.module.layer2" + str(i) + ".running_var\n")
-            for var in net.module.layer1[i].bn1.running_var:
+            output.write("net.module.layer2." + str(i) + ".bn1.running_var\n")
+            for var in net.module.layer2[i].bn1.running_var:
                 output.write(str(var.numpy()) + " ")
             output.write("\n")
             if i == 0: # Get downsample
                 # print("Downsample layer2." +  str(i) + ".downsample.module2.Running Mean")
+                output.write("net.module.layer2." + str(i) + ".downsample2.running_mean\n")
                 for mean in net.module.layer2[i].downsample[2].running_mean:
                     output.write(str(mean.numpy()) + " ")
                 output.write("\n")
                 # print("BN layer2." + str(i) + ".downsample.module2.Running Var")
+                output.write("net.module.layer2." + str(i) + ".downsample2.running_var\n")
                 for var in net.module.layer2[i].downsample[2].running_var:
                     output.write(str(var.numpy()) + " ")
                 output.write("\n")
 
         for i in range(0, 4): # Layer 3
             # print("BN layer3." +  str(i) + ".bn1.Running Mean")
-            output.write("net.module.layer3" + str(i) + ".running_mean\n")
-            for mean in net.module.layer1[i].bn1.running_mean:
+            output.write("net.module.layer3." + str(i) + ".bn1.running_mean\n")
+            for mean in net.module.layer3[i].bn1.running_mean:
                 output.write(str(mean.numpy()) + " ")
             output.write("\n")
             # print("BN layer3." + str(i) + ".bn1.Running Var")
-            output.write("net.module.layer3" + str(i) + ".running_var\n")
-            for var in net.module.layer1[i].bn1.running_var:
+            output.write("net.module.layer3." + str(i) + ".bn1.running_var\n")
+            for var in net.module.layer3[i].bn1.running_var:
                 output.write(str(var.numpy()) + " ")
             output.write("\n")
             if i == 0: # Get downsample
                 # print("Downsample layer3." +  str(i) + ".downsample.module2.Running Mean")
+                output.write("net.module.layer3." + str(i) + ".downsample2.running_mean\n")
                 for mean in net.module.layer3[i].downsample[2].running_mean:
                     output.write(str(mean.numpy()) + " ")
                 output.write("\n")
                 # print("BN layer3." + str(i) + ".downsample.module2.Running Var")
+                output.write("net.module.layer3." + str(i) + ".downsample2.running_var\n")
                 for var in net.module.layer3[i].downsample[2].running_var:
                     output.write(str(var.numpy()) + " ")
                 output.write("\n")
             
         for i in range(0, 4): # Layer 4
             # print("BN layer4." +  str(i) + ".bn1.Running Mean")
-            output.write("net.module.layer4" + str(i) + ".running_mean\n")
-            for mean in net.module.layer1[i].bn1.running_mean:
+            output.write("net.module.layer4." + str(i) + ".bn1.running_mean\n")
+            for mean in net.module.layer4[i].bn1.running_mean:
                 output.write(str(mean.numpy()) + " ")
             output.write("\n")
             # print("BN layer4." + str(i) + ".bn1.Running Var")
-            output.write("net.module.layer4" + str(i) + ".running_var\n")
-            for var in net.module.layer1[i].bn1.running_var:
+            output.write("net.module.layer4." + str(i) + ".bn1.running_var\n")
+            for var in net.module.layer4[i].bn1.running_var:
                 output.write(str(var.numpy()) + " ")
             output.write("\n")
             if i == 0: # Get downsample
                 # print("Downsample layer4." +  str(i) + ".downsample.module2.Running Mean")
+                output.write("net.module.layer4." + str(i) + ".downsample2.running_mean\n")
                 for mean in net.module.layer4[i].downsample[2].running_mean:
                     output.write(str(mean.numpy()) + " ")
                 output.write("\n")
                 # print("BN layer4." + str(i) + ".downsample.module2.Running Var")
+                output.write("net.module.layer4." + str(i) + ".downsample2.running_var\n")
                 for var in net.module.layer4[i].downsample[2].running_var:
                     output.write(str(var.numpy()) + " ")
                 output.write("\n")
