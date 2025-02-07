@@ -178,7 +178,7 @@ def main():
         plt.imshow(rgb)
         plt.show()
 
-    for i in range(10):
+    for i in range(5):
         label = test_datasetBatch.get(b"labels")[i]
         img = test_datasetBatch.get(b'data')[i]
         imshow(img)
