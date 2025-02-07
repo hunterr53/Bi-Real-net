@@ -120,19 +120,7 @@ def main():
     # traindir = os.path.join(args.data, 'train')
     # valdir = os.path.join(args.data, 'val')
     normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
-                                     std=[0.229, 0.224, 0.225])
-    
-    # Added For MNIST
-    mndata = MNIST('Datasets/MNIST/raw')
-    train_images, train_labels = mndata.load_training()
-    # and
-    test_images, test_labels = mndata.load_testing()
-
-    mnist_dataset = torchvision.datasets.MNIST(
-        root="./Datasets",
-        download=True, 
-        train=True, 
-        transform=transforms.ToTensor())
+                                     std=[0.229, 0.224, 0.225])\
     
     cifar10_dataset = torchvision.datasets.CIFAR10(
         root="./Datasets",
@@ -156,26 +144,6 @@ def main():
         transforms.CenterCrop(224),
         transforms.ToTensor(),
         normalize])
-
-    ## Original
-    # train_dataset = datasets.ImageFolder(
-    #     traindir,
-    #     transform=train_transforms)
-
-    # # load validation data
-    # val_loader = torch.utils.data.DataLoader(
-    #     datasets.ImageFolder(valdir, transforms.Compose([
-    #         transforms.Resize(256),
-    #         transforms.CenterCrop(224),
-    #         transforms.ToTensor(),
-    #         normalize,
-    #     ])),
-    #     batch_size=args.batch_size, shuffle=False,
-    #     num_workers=args.workers, pin_memory=True)
-
-    # Mnist dataloader
-    # train_dataset = (mnist_dataset.train_data, mnist_dataset.train_labels)
-    # train_dataset = mnist_dataset
     
     # Cifar10 dataloader
     cifar10_dataset.transform = train_transforms
@@ -184,13 +152,6 @@ def main():
     train_loader = torch.utils.data.DataLoader(
         train_dataset, batch_size=args.batch_size, shuffle=True,
         num_workers=args.workers, pin_memory=True)
-    
-    # val_dataset = (mnist_dataset.test_data, mnist_dataset.test_labels)
-    # val_dataset = torchvision.datasets.MNIST(
-    #     root="./Datasets",
-    #     download=True, 
-    #     train=False, 
-    #     transform=transforms.ToTensor())
     val_dataset = torchvision.datasets.CIFAR10(
         root="./Datasets",
         download=True, 
@@ -200,6 +161,28 @@ def main():
     val_loader = torch.utils.data.DataLoader(
         val_dataset, batch_size=args.batch_size, shuffle=False,
         num_workers=args.workers, pin_memory=True)
+
+    def unpickle(file):
+        import pickle
+        with open(file, 'rb') as fo:
+            dict = pickle.load(fo, encoding='bytes')
+        return dict
+    test_datasetBatch = unpickle('Datasets/cifar-10-batches-py/test_batch')
+    # Function to show an image
+    def imshow(img):
+        redPixels = img[0:1024].reshape(32, 32)
+        greenPixels = img[1024:2048].reshape(32, 32)
+        bluePixels = img[2048:3072].reshape(32, 32)
+        rgb = np.dstack((redPixels,greenPixels,bluePixels))
+
+        plt.imshow(rgb)
+        plt.show()
+
+    for i in range(10):
+        label = test_datasetBatch.get(b"labels")[i]
+        img = test_datasetBatch.get(b'data')[i]
+        imshow(img)
+        print(label)
 
     # train the model
     epoch = start_epoch
