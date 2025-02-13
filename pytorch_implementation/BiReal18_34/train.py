@@ -23,7 +23,7 @@ from torch.autograd import Variable
 from birealnet import birealnet18
 
 
-from mnist import MNIST
+# from mnist import MNIST
 
 # Seed
 random.seed(10)
@@ -120,7 +120,7 @@ def main():
     # traindir = os.path.join(args.data, 'train')
     # valdir = os.path.join(args.data, 'val')
     normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
-                                     std=[0.229, 0.224, 0.225])\
+                                     std=[0.229, 0.224, 0.225])
     
     cifar10_dataset = torchvision.datasets.CIFAR10(
         root="./Datasets",
@@ -143,7 +143,8 @@ def main():
         Lighting(lighting_param),
         transforms.CenterCrop(224),
         transforms.ToTensor(),
-        normalize])
+        normalize
+        ])
     
     # Cifar10 dataloader
     cifar10_dataset.transform = train_transforms
@@ -160,7 +161,7 @@ def main():
     
     val_loader = torch.utils.data.DataLoader(
         val_dataset, batch_size=args.batch_size, shuffle=False,
-        num_workers=args.workers, pin_memory=True)
+        num_workers=1, pin_memory=True)
 
     def unpickle(file):
         import pickle
@@ -177,12 +178,51 @@ def main():
 
         plt.imshow(rgb)
         plt.show()
-
-    for i in range(5):
+    # Show images before transform
+    for i in range(1):
         label = test_datasetBatch.get(b"labels")[i]
         img = test_datasetBatch.get(b'data')[i]
-        imshow(img)
+        # imshow(img)
         print(label)
+
+    # binImagesTest = np.empty((10000, 3073))
+    # with open('pytorch_implementation/BiReal18_34/savedWeights/TransformedTestData.bin', "wb") as binary_file:
+    #     for i in range(10000):
+    #         label = test_datasetBatch.get(b"labels")[i]
+    #         img = test_datasetBatch.get(b'data')[i]
+    #         redPixels = img[0:1024].reshape(32, 32)
+    #         greenPixels = img[1024:2048].reshape(32, 32)
+    #         bluePixels = img[2048:3072].reshape(32, 32)
+    #         rgb = np.dstack((redPixels,greenPixels,bluePixels))
+    #         rgb = rgb.transpose(2, 0, 1)
+    #         rowOfData = rgb.flatten()
+    #         rowOfData = np.insert(rowOfData, 0, label).reshape(1,-1) # Put label as first byte of data
+    #         binImagesTest[i] = rowOfData
+    #         # binary_file.write(binImagesTest[i])
+    #         # binary_file.write(b"\n")
+    # binImagesTest = binImagesTest.astype(np.uint8)
+    # binImagesTest.tofile('pytorch_implementation/BiReal18_34/savedWeights/TransformedTestData.bin', sep='')
+
+    # Show first image after transform, and then save the first batch of images.
+    binImages = np.empty((164, 150529))
+    for (images, target) in val_loader: # For each batch
+        for i in range(args.batch_size):
+            label = target[i]
+            image = images[i]
+            if i == 0:
+                print('Label: ' + str(label.data))
+                imagePrint = image.permute(1, 2, 0)
+                plt.imshow(imagePrint)
+                plt.show()
+            rowOfData = image.flatten().numpy()
+            rowOfData = np.insert(rowOfData, 0, label.data).reshape(1,-1) # Put label as first byte of data
+            binImages[i] = rowOfData
+        
+        binImages = binImages.astype(np.float16) # Two bytes per pixel
+        binImages.tofile('pytorch_implementation/BiReal18_34/savedWeights/TransformedTestData.bin', sep='')
+            
+        break # Only get first batch
+    # For a batch of 164, test file out should be: ((3x224x224) * 164images + 1 Label) * 2 bytes per pixel / 1024 BytesToKiloBytes
 
     # train the model
     epoch = start_epoch
@@ -312,7 +352,7 @@ def saveWeights(net, isCuda):
         print(name, "\t", param.size())
 
     print("\nWrite Model Weights/Bias to file:")
-    with open('pytorch_implementation\BiReal18_34\savedWeights\BiRealNetPreTrainedWeights.txt', "w+") as output:
+    with open('pytorch_implementation/BiReal18_34/savedWeights/BiRealNetPreTrainedWeights.txt', "w+") as output:
         bnDebugCounter = 0
         downsampleDebugCounter = 0
         fcDebugCounter = 0
@@ -407,7 +447,7 @@ def saveWeights(net, isCuda):
         print("FC Debug Counter:", fcDebugCounter)
 
     print("\nWrite Model BN Mean/Var to file:")
-    with open('pytorch_implementation\BiReal18_34\savedWeights\BiRealNetPreTrainedBN.txt', "w+") as output:
+    with open('pytorch_implementation/BiReal18_34/savedWeights/BiRealNetPreTrainedBN.txt', "w+") as output:
         # print("Input Running Mean", net.module.bn1.running_mean.shape)
         output.write("bn1.running_mean\n")
         for mean in net.module.bn1.running_mean:

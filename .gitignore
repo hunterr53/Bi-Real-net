@@ -4,3 +4,4 @@ pytorch_implementation/BiReal18_34/_pycache_/*
 pytorch_implementation/BiReal18_34/savedWeights/*
 pytorch_implementation/BiReal18_34/__pycache__/birealnet.cpython-311.pyc
 pytorch_implementation/BiReal18_34/log/log.txt
+get-pip.py
