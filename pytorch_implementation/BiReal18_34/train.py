@@ -218,11 +218,11 @@ def main():
             rowOfData = np.insert(rowOfData, 0, label.data).reshape(1,-1) # Put label as first byte of data
             binImages[i] = rowOfData
         
-        binImages = binImages.astype(np.float16) # Two bytes per pixel
+        binImages = binImages.astype(np.float32) # 4 bytes per pixel
         binImages.tofile('pytorch_implementation/BiReal18_34/savedWeights/TransformedTestData.bin', sep='')
             
         break # Only get first batch
-    # For a batch of 164, test file out should be: ((3x224x224) * 164images + 1 Label) * 2 bytes per pixel / 1024 BytesToKiloBytes
+    # For a batch of 164, test file out should be: ((3x224x224) * 164images + 1 Label) * 4 bytes per pixel / 1024 BytesToKiloBytes
 
     # train the model
     epoch = start_epoch
