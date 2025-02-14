@@ -14,6 +14,8 @@ import torch.backends.cudnn as cudnn
 import torch.distributed as dist
 import torch.utils.data.distributed
 import torchvision
+import csv
+import pandas as pd
 
 #sys.path.append("../")
 from utils import *
@@ -175,6 +177,9 @@ def main():
         greenPixels = img[1024:2048].reshape(32, 32)
         bluePixels = img[2048:3072].reshape(32, 32)
         rgb = np.dstack((redPixels,greenPixels,bluePixels))
+        print(rgb.shape)
+        test_df = pd.DataFrame(img[0:1024].reshape(32, 32))
+        test_df.to_csv('pytorch_implementation/BiReal18_34/savedWeights/testImageRed.csv', index=False, header=False )
 
         plt.imshow(rgb)
         plt.show()
