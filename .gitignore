@@ -7,3 +7,4 @@ pytorch_implementation/BiReal18_34/log/log.txt
 get-pip.py
 *.csv
 *.txt
+pytorch_implementation/BiReal18_34/savedWeights/BiRealNetPreTrainedWeights.txt

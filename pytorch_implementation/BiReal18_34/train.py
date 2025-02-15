@@ -29,6 +29,8 @@ from birealnet import birealnet18
 
 # Seed
 random.seed(10)
+torch.set_default_dtype(torch.float32) # Default float precision is float64, change to float32 to match C
+torch.set_float32_matmul_precision('high') # Default precision is 'highest', change to 'high' to match C
 
 parser = argparse.ArgumentParser("birealnet")
 parser.add_argument('--batch_size', type=int, default=164, help='batch size')
