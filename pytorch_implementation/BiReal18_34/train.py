@@ -190,8 +190,9 @@ def main():
         # imshow(img)
         print(label)
 
+    # Test saving non-transformed test data
     # binImagesTest = np.empty((10000, 3073))
-    # with open('pytorch_implementation/BiReal18_34/savedWeights/TransformedTestData.bin', "wb") as binary_file:
+    # with open('pytorch_implementation/BiReal18_34/savedWeights/TestData.bin', "wb") as binary_file:
     #     for i in range(10000):
     #         label = test_datasetBatch.get(b"labels")[i]
     #         img = test_datasetBatch.get(b'data')[i]

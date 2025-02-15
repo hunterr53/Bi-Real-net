@@ -6,3 +6,4 @@ pytorch_implementation/BiReal18_34/__pycache__/birealnet.cpython-311.pyc
 pytorch_implementation/BiReal18_34/log/log.txt
 get-pip.py
 *.csv
+*.txt
