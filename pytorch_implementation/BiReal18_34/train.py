@@ -30,7 +30,7 @@ from birealnet import birealnet18
 # Seed
 random.seed(10)
 torch.set_default_dtype(torch.float32) # change to float32 to match C
-torch.set_float32_matmul_precision('high') # Default precision is 'highest', change to 'high' to match C
+torch.set_float32_matmul_precision('medium') # Default precision is 'highest', change to 'high' to match C
 
 parser = argparse.ArgumentParser("birealnet")
 parser.add_argument('--batch_size', type=int, default=164, help='batch size')
@@ -79,11 +79,14 @@ def main():
 
     # load model
     model = birealnet18()
+    model = model.to(torch.float32)
+    model = model.type(torch.float32)
     logging.info(model)
     model = nn.DataParallel(model).cuda() if isCuda else nn.DataParallel(model).cpu()
 
     # Get model summary
-    summary(model, (3, 224, 224)) # 3x224x224
+    dataDim = (3, 224, 224)
+    # summary(model, dataDim) # 3x224x224
 
     criterion = nn.CrossEntropyLoss() # Computes the cross entropy loss between input logits and target.
     criterion = criterion.cuda() if isCuda else criterion.cpu()
