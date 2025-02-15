@@ -1,8 +1,10 @@
+import os
+import pandas as pd
 import torch
 import torch.nn as nn
 import torch.utils.model_zoo as model_zoo
 import torch.nn.functional as F
-
+import numpy as np
 
 __all__ = ['birealnet18', 'birealnet34']
 
@@ -123,12 +125,12 @@ class BiRealNet(nn.Module):
         return nn.Sequential(*layers)
 
     def forward(self, x):
-        print('Input', x.shape)
         x = self.conv1(x)
-        print('Conv1', x.shape)
-
+        saveFeaturesCsv(x, 'conv1')
         x = self.bn1(x)
+        saveFeaturesCsv(x, 'bn1_1')
         x = self.maxpool(x)
+        saveFeaturesCsv(x, 'maxpool_1')
 
         # print('Layer1')
         x = self.layer1(x)
@@ -157,3 +159,23 @@ def birealnet34(pretrained=False, **kwargs):
     model = BiRealNet(BasicBlock, [6, 8, 12, 6], **kwargs)
     return model
 
+def saveFeaturesCsv(x, name):
+    with torch.no_grad():
+        path = 'pytorch_implementation/BiReal18_34/savedWeights/' + 'features_' + name + '.csv'
+        # np.savetxt(path, x.cpu().detach().numpy(), delimiter=',')
+        
+        try:
+            os.remove(path)
+            print(f"File '{path}' successfully deleted.")
+        except FileNotFoundError:
+            print(f"Error: File '{path}' not found.")
+        except PermissionError:
+            print(f"Error: Permission denied to delete '{path}'.")
+        except OSError as e:
+             print(f"Error: An unexpected error occurred while deleting '{path}': {e}")
+        
+        for i, kernel in enumerate(x[0]):
+            test_df = pd.DataFrame(kernel.numpy().astype(np.float32))
+            test_df.to_csv(path, index=False, mode = 'a', header=True)
+            if i > 3:
+                break # Only save first 3 kernels
