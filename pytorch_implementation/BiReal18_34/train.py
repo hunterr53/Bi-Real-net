@@ -64,6 +64,7 @@ logging.basicConfig(filename='pytorch_implementation/BiReal18_34/log/log.txt', f
                     level=logging.INFO, format=log_format, datefmt='%m/%d %I:%M:%S %p')
 
 def main():
+    global isCuda
     if not torch.cuda.is_available():
         # sys.exit(1)
         logging.warning('No CUDA available')
@@ -86,7 +87,7 @@ def main():
 
     # Get model summary
     dataDim = (3, 224, 224)
-    # summary(model, dataDim) # 3x224x224
+    summary(model, dataDim) # 3x224x224
 
     criterion = nn.CrossEntropyLoss() # Computes the cross entropy loss between input logits and target.
     criterion = criterion.cuda() if isCuda else criterion.cpu()
@@ -113,6 +114,7 @@ def main():
     checkpoint_tar = os.path.join(args.save, 'checkpoint.pth.tar')
     if os.path.exists(checkpoint_tar):
         logging.info('loading checkpoint {} ..........'.format(checkpoint_tar))
+        print('loading checkpoint {} ..........'.format(checkpoint_tar))
         checkpoint = torch.load(checkpoint_tar)
         start_epoch = checkpoint['epoch']
         best_top1_acc = checkpoint['best_top1_acc']
@@ -193,7 +195,7 @@ def main():
         label = test_datasetBatch.get(b"labels")[i]
         img = test_datasetBatch.get(b'data')[i]
         # imshow(img)
-        print(label)
+        # print(label)
 
     # Test saving non-transformed test data
     # binImagesTest = np.empty((10000, 3073))
@@ -265,6 +267,7 @@ def main():
             best_top1_acc = valid_top1_acc
             is_best = True
 
+        print("Saving Checkpoint...")
         save_checkpoint({
             'epoch': epoch,
             'state_dict': model.state_dict(),
@@ -279,6 +282,7 @@ def main():
 
 
 def train(epoch, train_loader, model, criterion, optimizer, scheduler):
+    global isCuda
     batch_time = AverageMeter('Time', ':6.3f')
     data_time = AverageMeter('Data', ':6.3f')
     losses = AverageMeter('Loss', ':.4e')
@@ -328,6 +332,7 @@ def train(epoch, train_loader, model, criterion, optimizer, scheduler):
     return losses.avg, top1.avg, top5.avg
 
 def validate(epoch, val_loader, model, criterion, args):
+    global isCuda
     batch_time = AverageMeter('Time', ':6.3f')
     losses = AverageMeter('Loss', ':.4e')
     top1 = AverageMeter('Acc@1', ':6.2f')
@@ -367,7 +372,7 @@ def validate(epoch, val_loader, model, criterion, args):
 
     return losses.avg, top1.avg, top5.avg
 
-def saveWeights(net, isCuda):    
+def saveWeights(net, isCuda):
     net = net.cpu()
     #Save weights to CSV file
     import pandas as pd
