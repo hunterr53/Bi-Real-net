@@ -121,15 +121,15 @@ class BiRealNet(nn.Module):
 
         return nn.Sequential(*layers)
 
-    def forward(self, x):
+    def forward(self, x, isPrint=False):
         x = x.to(torch.float32)
-        saveFeaturesCsv(x, 'input0')
+        if isPrint: saveFeaturesCsv(x, 'input0')
         x = self.conv1(x)
-        saveFeaturesCsv(x, 'conv1')
+        if isPrint: saveFeaturesCsv(x, 'conv1')
         x = self.bn1(x)
-        saveFeaturesCsv(x, 'bn1_1')
+        if isPrint: saveFeaturesCsv(x, 'bn1_1')
         x = self.maxpool(x)
-        saveFeaturesCsv(x, 'maxpool_1')
+        if isPrint: saveFeaturesCsv(x, 'maxpool_1')
 
         # print('Layer1')
         x = self.layer1(x)

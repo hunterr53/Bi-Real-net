@@ -250,7 +250,7 @@ def main():
             images = images.cuda() if isCuda else images.cpu()
             target = target.cuda() if isCuda else target.cpu()
             # compute output
-            logits = model(images)
+            logits = model(images, isPrint=True)
             loss = criterion(logits, target)
 
             break # Only get first batch/image
