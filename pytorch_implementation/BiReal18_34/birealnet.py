@@ -73,11 +73,18 @@ class BasicBlock(nn.Module):
         self.stride = stride
 
     def forward(self, x):
+        isPrint = True
         residual = x
+        if isPrint: saveFeaturesCsv(x, 'PyResidual0_1')
 
         out = self.binary_activation(x)
+        if isPrint: saveFeaturesCsv(out, 'PyBinaryAct0_1')
+
         out = self.binary_conv(out)
+        if isPrint: saveFeaturesCsv(out, 'PyConv0_1')
+        
         out = self.bn1(out)
+        if isPrint: saveFeaturesCsv(out, 'PyBN0_1')
 
         if self.downsample is not None:
             # print(residual.shape, 'pre downsample')
@@ -131,13 +138,9 @@ class BiRealNet(nn.Module):
         x = self.maxpool(x)
         if isPrint: saveFeaturesCsv(x, 'maxpool_1')
 
-        # print('Layer1')
         x = self.layer1(x)
-        # print('Layer2')
         x = self.layer2(x)
-        # print('Layer3')
         x = self.layer3(x)
-        # print('Layer4')
         x = self.layer4(x)
 
         x = self.avgpool(x)
