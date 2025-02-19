@@ -36,7 +36,6 @@ class BinaryActivation(nn.Module):
 
         return out
 
-
 class HardBinaryConv(nn.Module):
     def __init__(self, in_chn, out_chn, kernel_size=3, stride=1, padding=1):
         super(HardBinaryConv, self).__init__()
@@ -55,12 +54,16 @@ class HardBinaryConv(nn.Module):
         cliped_weights = torch.clamp(real_weights, -1.0, 1.0)
         binary_weights = binary_weights_no_grad.detach() - cliped_weights.detach() + cliped_weights
         #print(binary_weights, flush=True)
-        temp = F.conv2d(x, binary_weights, stride=self.stride, padding=self.padding)
+        y = F.conv2d(x, binary_weights, stride=self.stride, padding=self.padding)
 
+        # Done as 2nd step. "
+        # we constraint the weights to -1 and 1, and set the learning rate
+            # in all convolution layers to 0 and retrain the BatchNorm layer for 1 epoch to
+            # absorb the scaling factor."
         actualBinaryWeights = torch.sign(real_weights)
-        y = F.conv2d(x, actualBinaryWeights, stride=self.stride, padding=self.padding)
+        temp = F.conv2d(x, actualBinaryWeights, stride=self.stride, padding=self.padding)
 
-        return temp
+        return y
 
 class BasicBlock(nn.Module):
     expansion = 1
@@ -99,8 +102,6 @@ class BasicBlock(nn.Module):
         return out
 
 class BiRealNet(nn.Module):
-
-    # def __init__(self, block, layers, num_classes=1000, zero_init_residual=False):
     def __init__(self, block, layers, num_classes=10, zero_init_residual=False):
         super(BiRealNet, self).__init__()
         self.inplanes = 64
@@ -109,8 +110,8 @@ class BiRealNet(nn.Module):
         self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
         self.layer1 = self._make_layer(block, 64, layers[0])
         self.layer2 = self._make_layer(block, 128, layers[1], stride=2)
-        self.layer3 = self._make_layer(block, 256, layers[2], stride=2) # 3 for MNIST..?
-        self.layer4 = self._make_layer(block, 512, layers[3], stride=2) # 3 for MNIST..?
+        self.layer3 = self._make_layer(block, 256, layers[2], stride=2) 
+        self.layer4 = self._make_layer(block, 512, layers[3], stride=2) 
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
         self.fc = nn.Linear(512 * block.expansion, num_classes)
 

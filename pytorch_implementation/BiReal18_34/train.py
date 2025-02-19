@@ -45,19 +45,8 @@ parser.add_argument('-j', '--workers', default=4, type=int, metavar='N',
                     help='number of data loading workers (default: 4)')
 args = parser.parse_args()
 
-# CLASSES = 1000
 CLASSES = 10
 isCuda = True
-
-# if not os.path.exists('log'):
-#     os.mkdir('log')
-
-# log_format = '%(asctime)s %(message)s'
-# logging.basicConfig(stream=sys.stdout, level=logging.INFO,
-#     format=log_format, datefmt='%m/%d %I:%M:%S %p')
-# fh = logging.FileHandler(os.path.join('log/log.txt'))
-# fh.setFormatter(logging.Formatter(log_format))
-# logging.getLogger().addHandler(fh)
 
 log_format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 logging.basicConfig(filename='pytorch_implementation/BiReal18_34/log/log.txt', filemode='w', 
@@ -75,7 +64,7 @@ def main():
     start_t = time.time()
 
     cudnn.benchmark = True if isCuda else False
-    cudnn.enabled=True if isCuda else False
+    cudnn.enabled = True if isCuda else False
     logging.info("args = %s", args)
 
     # load model
@@ -241,7 +230,7 @@ def main():
     # For a batch of 164, test file out should be: ((3x224x224) * 164images + 1 Label) * 4 bytes per pixel / 1024 BytesToKiloBytes
 
     # Push First Test Image through model and save it to csv layer features
-    model.eval()
+    model = model.eval()
     val_loader_debug = torch.utils.data.DataLoader(
         val_dataset, batch_size=1, shuffle=False,
         num_workers=1, pin_memory=True) # only one image per batch
