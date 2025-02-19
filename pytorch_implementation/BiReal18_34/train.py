@@ -87,7 +87,7 @@ def main():
 
     # Get model summary
     dataDim = (3, 224, 224)
-    summary(model, dataDim) # 3x224x224
+    # summary(model, dataDim) # 3x224x224
 
     criterion = nn.CrossEntropyLoss() # Computes the cross entropy loss between input logits and target.
     criterion = criterion.cuda() if isCuda else criterion.cpu()

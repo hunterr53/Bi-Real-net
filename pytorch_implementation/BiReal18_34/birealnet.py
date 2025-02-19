@@ -55,9 +55,12 @@ class HardBinaryConv(nn.Module):
         cliped_weights = torch.clamp(real_weights, -1.0, 1.0)
         binary_weights = binary_weights_no_grad.detach() - cliped_weights.detach() + cliped_weights
         #print(binary_weights, flush=True)
-        y = F.conv2d(x, binary_weights, stride=self.stride, padding=self.padding)
+        temp = F.conv2d(x, binary_weights, stride=self.stride, padding=self.padding)
 
-        return y
+        actualBinaryWeights = torch.sign(real_weights)
+        y = F.conv2d(x, actualBinaryWeights, stride=self.stride, padding=self.padding)
+
+        return temp
 
 class BasicBlock(nn.Module):
     expansion = 1
