@@ -232,8 +232,8 @@ def main():
     # Push First Test Image through model and save it to csv layer features
     model = model.eval()
     val_loader_debug = torch.utils.data.DataLoader(
-        val_dataset, batch_size=1, shuffle=False,
-        num_workers=1, pin_memory=True) # only one image per batch
+        val_dataset, batch_size=1, shuffle=False, # only one image per batch
+        num_workers=1, pin_memory=True) 
     with torch.no_grad():
         for i, (images, target) in enumerate(val_loader_debug):
             images = images.cuda() if isCuda else images.cpu()

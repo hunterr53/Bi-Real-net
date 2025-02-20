@@ -63,7 +63,7 @@ class HardBinaryConv(nn.Module):
         actualBinaryWeights = torch.sign(real_weights)
         temp = F.conv2d(x, actualBinaryWeights, stride=self.stride, padding=self.padding)
 
-        return y
+        return temp
 
 class BasicBlock(nn.Module):
     expansion = 1
@@ -98,6 +98,7 @@ class BasicBlock(nn.Module):
 
         # print('Residual:', residual.shape, '- Out', out.shape)
         out += residual
+        if isPrint: saveFeaturesCsv(out, 'PyAdd0_1')
 
         return out
 
