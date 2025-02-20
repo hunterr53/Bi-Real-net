@@ -6,6 +6,8 @@ import torch.utils.model_zoo as model_zoo
 import torch.nn.functional as F
 import numpy as np
 
+globalCounter = 0
+
 __all__ = ['birealnet18', 'birealnet34']
 
 def conv3x3(in_planes, out_planes, stride=1):
@@ -34,7 +36,8 @@ class BinaryActivation(nn.Module):
         out3 = out2 * mask3.type(torch.float32) + 1 * (1- mask3.type(torch.float32))
         out = out_forward.detach() - out3.detach() + out3
 
-        return out
+        return out_forward.detach() # Match C Code. Don't need piecewise function during inference
+        # return out
 
 class HardBinaryConv(nn.Module):
     def __init__(self, in_chn, out_chn, kernel_size=3, stride=1, padding=1):
@@ -79,27 +82,30 @@ class BasicBlock(nn.Module):
         self.stride = stride
 
     def forward(self, x):
+        global globalCounter
         isPrint = True
         residual = x
-        if isPrint: saveFeaturesCsv(x, 'PyResidual0_1')
+        if isPrint: saveFeaturesCsv(x,  str(globalCounter) + '_PyResidual1_')
 
         out = self.binary_activation(x)
-        if isPrint: saveFeaturesCsv(out, 'PyBinaryAct0_1')
+        if isPrint: saveFeaturesCsv(out, str(globalCounter) + '_PyBinaryAct1_')
 
         out = self.binary_conv(out)
-        if isPrint: saveFeaturesCsv(out, 'PyConv0_1')
+        if isPrint: saveFeaturesCsv(out, str(globalCounter) + '_PyConv1_')
         
         out = self.bn1(out)
-        if isPrint: saveFeaturesCsv(out, 'PyBN0_1')
+        if isPrint: saveFeaturesCsv(out, str(globalCounter) + '_PyBN1_')
 
         if self.downsample is not None:
             # print(residual.shape, 'pre downsample')
             residual = self.downsample(x)
+            if isPrint: saveFeaturesCsv(out, str(globalCounter) + '_PyDownSample1_')
 
         # print('Residual:', residual.shape, '- Out', out.shape)
         out += residual
-        if isPrint: saveFeaturesCsv(out, 'PyAdd0_1')
+        if isPrint: saveFeaturesCsv(out, str(globalCounter) + '_PyAdd1_')
 
+        globalCounter += 1
         return out
 
 class BiRealNet(nn.Module):
@@ -139,9 +145,9 @@ class BiRealNet(nn.Module):
         x = self.conv1(x)
         if isPrint: saveFeaturesCsv(x, 'conv1')
         x = self.bn1(x)
-        if isPrint: saveFeaturesCsv(x, 'bn1_1')
+        if isPrint: saveFeaturesCsv(x, 'bn1')
         x = self.maxpool(x)
-        if isPrint: saveFeaturesCsv(x, 'maxpool_1')
+        if isPrint: saveFeaturesCsv(x, 'maxpool1')
 
         x = self.layer1(x)
         x = self.layer2(x)
