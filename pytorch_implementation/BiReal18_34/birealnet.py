@@ -85,25 +85,33 @@ class BasicBlock(nn.Module):
         global globalCounter
         isPrint = True
         residual = x
-        if isPrint: saveFeaturesCsv(x,  str(globalCounter) + '_PyResidual1_')
+        if isPrint: saveFeaturesCsv(x,  str(globalCounter) + '_PyResidual')
 
         out = self.binary_activation(x)
-        if isPrint: saveFeaturesCsv(out, str(globalCounter) + '_PyBinaryAct1_')
+        if isPrint: saveFeaturesCsv(out, str(globalCounter) + '_PyBinaryAct')
 
         out = self.binary_conv(out)
-        if isPrint: saveFeaturesCsv(out, str(globalCounter) + '_PyConv1_')
+        if isPrint: saveFeaturesCsv(out, str(globalCounter) + '_PyConv')
         
         out = self.bn1(out)
-        if isPrint: saveFeaturesCsv(out, str(globalCounter) + '_PyBN1_')
+        if isPrint: saveFeaturesCsv(out, str(globalCounter) + '_PyBN')
 
         if self.downsample is not None:
             # print(residual.shape, 'pre downsample')
-            residual = self.downsample(x)
-            if isPrint: saveFeaturesCsv(out, str(globalCounter) + '_PyDownSample1_')
+            # residual = self.downsample(x)
+            # if isPrint: saveFeaturesCsv(out, str(globalCounter) + '_PyDownSample')
+            downSamp = nn.Sequential(nn.AvgPool2d(kernel_size=2, stride=2))
+            residual = downSamp(residual)
+            tempShape = residual.shape
+            if isPrint: saveFeaturesCsv(out, str(globalCounter) + '_PyAvgPool')
+            residual = conv1x1(64, 128),
+            if isPrint: saveFeaturesCsv(out, str(globalCounter) + '_Conv1x1')
+            residual = nn.BatchNorm2d(128),
+            if isPrint: saveFeaturesCsv(out, str(globalCounter) + '_PyBN_DS')
 
         # print('Residual:', residual.shape, '- Out', out.shape)
         out += residual
-        if isPrint: saveFeaturesCsv(out, str(globalCounter) + '_PyAdd1_')
+        if isPrint: saveFeaturesCsv(out, str(globalCounter) + '_PyAdd')
 
         globalCounter += 1
         return out
