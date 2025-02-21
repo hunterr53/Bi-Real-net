@@ -11,7 +11,8 @@
             // "program": "${file}",
             "program": "pytorch_implementation/BiReal18_34/train.py",
             "args": ["--data", "Datasets/CIFAR10"],
-            "console": "integratedTerminal"
+            "console": "integratedTerminal",
+            "justMyCode": false
         }
     ]
 }
