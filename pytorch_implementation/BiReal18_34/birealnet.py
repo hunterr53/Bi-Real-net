@@ -36,8 +36,8 @@ class BinaryActivation(nn.Module):
         out3 = out2 * mask3.type(torch.float32) + 1 * (1- mask3.type(torch.float32))
         out = out_forward.detach() - out3.detach() + out3
 
-        return out_forward.detach() # Match C Code. Don't need piecewise function during inference
         # return out
+        return out_forward # Match C Code. Don't need piecewise function during inference
 
 class HardBinaryConv(nn.Module):
     def __init__(self, in_chn, out_chn, kernel_size=3, stride=1, padding=1):
@@ -98,18 +98,12 @@ class BasicBlock(nn.Module):
 
         if self.downsample is not None:
             # print(residual.shape, 'pre downsample')
-            # residual = self.downsample(x)
-            # if isPrint: saveFeaturesCsv(out, str(globalCounter) + '_PyDownSample')
-            downSamp = nn.Sequential(nn.AvgPool2d(kernel_size=2, stride=self.stride))
-            residual = downSamp(residual)
-            tempShape = residual.shape
-            if isPrint: saveFeaturesCsv(residual, str(globalCounter) + '_PyAvgPool')
-            downSamp = nn.Sequential(conv1x1(tempShape[1], tempShape[1] * 2))
-            residual = downSamp(residual)
-            if isPrint: saveFeaturesCsv(residual, str(globalCounter) + '_Conv1x1')
-            downSamp = nn.Sequential(nn.BatchNorm2d(tempShape[1] * 2))
-            residual = downSamp(residual)
-            if isPrint: saveFeaturesCsv(residual, str(globalCounter) + '_PyBN_DS')
+            residual = self.downsample(x)
+            if isPrint: saveFeaturesCsv(residual, str(globalCounter) + '_PyDownSample')
+
+            downSamp = nn.Sequential(nn.AvgPool2d(kernel_size=2, stride=self.stride)) # Won't work with Conv/BN layers b/c of weights
+            residualDebug = downSamp(x)
+            if isPrint: saveFeaturesCsv(residualDebug, str(globalCounter) + '_PyAvgPool')
 
         # print('Residual:', residual.shape, '- Out', out.shape)
         out += residual
