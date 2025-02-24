@@ -206,29 +206,30 @@ def main():
     # binImagesTest.tofile('pytorch_implementation/BiReal18_34/savedWeights/TransformedTestData.bin', sep='')
 
     # # Show first image after transform, and then save the first batch of transformed images.
-    # binImages = np.empty((164, 150529))
-    # for (images, target) in val_loader: # For each batch
-    #     for i in range(args.batch_size):
-    #         label = target[i]
-    #         image = images[i]
-    #         # if i == 0:
-    #         #     print('Label: ' + str(label.data))
-    #         #     imagePrint = image.permute(1, 2, 0)
-    #         #     plt.imshow(imagePrint)
-    #         #     plt.show()
-    #         rowOfData = image.flatten().numpy()
-    #         rowOfData = np.insert(rowOfData, 0, label.data).reshape(1,-1) # Put label as first byte of data
-    #         binImages[i] = rowOfData
+    binImages = np.empty((164, 150529))
+    for (images, target) in val_loader: # For each batch
+        for i in range(args.batch_size):
+            label = target[i]
+            image = images[i]
+            # if i == 0:
+            #     print('Label: ' + str(label.data))
+            #     imagePrint = image.permute(1, 2, 0)
+            #     plt.imshow(imagePrint)
+            #     plt.show()
+            rowOfData = image.flatten().numpy()
+            rowOfData = np.insert(rowOfData, 0, label.data).reshape(1,-1) # Put label as first byte of data
+            binImages[i] = rowOfData
         
-    #     binImages = binImages.astype(np.float32) # 4 bytes per pixel
-    #     binImages.tofile('pytorch_implementation/BiReal18_34/savedWeights/TransformedTestData.bin', sep='')
+        binImages = binImages.astype(np.float32) # 4 bytes per pixel
+        binImages.tofile('pytorch_implementation/BiReal18_34/savedWeights/TransformedTestData.bin', sep='')
         
-    #     # test_df = pd.DataFrame(images[0][2].numpy().astype(np.float32))
-    #     # test_df.to_csv('pytorch_implementation/BiReal18_34/savedWeights/testImageZeroBlue.csv', index=False, header=False )
+        # test_df = pd.DataFrame(images[0][2].numpy().astype(np.float32))
+        # test_df.to_csv('pytorch_implementation/BiReal18_34/savedWeights/testImageZeroBlue.csv', index=False, header=False )
             
-    #     break # Only get first batch
+        break # Only get first batch
     # For a batch of 164, test file out should be: ((3x224x224) * 164images + 1 Label) * 4 bytes per pixel / 1024 BytesToKiloBytes
 
+    saveWeights(model, isCuda)
     # Push First Test Image through model and save it to csv layer features
     model = model.eval()
     val_loader_debug = torch.utils.data.DataLoader(
@@ -247,7 +248,7 @@ def main():
     # train the model
     epoch = start_epoch
     while epoch < args.epochs:
-        saveWeights(model, isCuda)
+        # saveWeights(model, isCuda)
         train_obj, train_top1_acc,  train_top5_acc = train(epoch,  train_loader, model, criterion_smooth, optimizer, scheduler)
         valid_obj, valid_top1_acc, valid_top5_acc = validate(epoch, val_loader, model, criterion, args)
 
