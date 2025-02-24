@@ -180,9 +180,9 @@ def main():
         plt.imshow(rgb)
         plt.show()
     # Show images before transform
-    for i in range(1):
-        label = test_datasetBatch.get(b"labels")[i]
-        img = test_datasetBatch.get(b'data')[i]
+    # for i in range(1):
+    #     label = test_datasetBatch.get(b"labels")[i]
+    #     img = test_datasetBatch.get(b'data')[i]
         # imshow(img)
         # print(label)
 
@@ -208,14 +208,15 @@ def main():
     # # Show first image after transform, and then save the first batch of transformed images.
     binImages = np.empty((164, 150529))
     for (images, target) in val_loader: # For each batch
-        for i in range(args.batch_size):
+        for i in range(164):
             label = target[i]
             image = images[i]
-            # if i == 0:
-            #     print('Label: ' + str(label.data))
-            #     imagePrint = image.permute(1, 2, 0)
-            #     plt.imshow(imagePrint)
-            #     plt.show()
+            if i == 0:
+                targetImage = image
+                # print('Label: ' + str(label.data))
+                # imagePrint = image.permute(1, 2, 0)
+                # plt.imshow(imagePrint)
+                # plt.show()
             rowOfData = image.flatten().numpy()
             rowOfData = np.insert(rowOfData, 0, label.data).reshape(1,-1) # Put label as first byte of data
             binImages[i] = rowOfData
@@ -232,18 +233,23 @@ def main():
     saveWeights(model, isCuda)
     # Push First Test Image through model and save it to csv layer features
     model = model.eval()
-    val_loader_debug = torch.utils.data.DataLoader(
-        val_dataset, batch_size=1, shuffle=False, # only one image per batch
-        num_workers=1, pin_memory=True) 
-    with torch.no_grad():
-        for i, (images, target) in enumerate(val_loader_debug):
-            images = images.cuda() if isCuda else images.cpu()
-            target = target.cuda() if isCuda else target.cpu()
-            # compute output
-            logits = model(images, isPrint=True)
-            loss = criterion(logits, target)
+    isDataEqual = False
+    while(isDataEqual == False):
+        val_loader_debug = torch.utils.data.DataLoader(
+            val_dataset, batch_size=1, shuffle=False, # only one image per batch
+            num_workers=1, pin_memory=True) 
+        with torch.no_grad():
+            for i, (images, target) in enumerate(val_loader_debug):
+                images = images.cuda() if isCuda else images.cpu()
+                target = target.cuda() if isCuda else target.cpu()
+                # isDataEqual = torch.equal(images, targetImage)
+                isDataEqual = images.allclose(targetImage)
+                if not isDataEqual: break #Wait for target image to be pushed through model
+                # compute output
+                logits = model(images, isPrint=True)
+                loss = criterion(logits, target)
 
-            break # Only get first batch/image
+                break # Only get first batch/image
 
     # train the model
     epoch = start_epoch

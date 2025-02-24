@@ -57,14 +57,14 @@ class HardBinaryConv(nn.Module):
         cliped_weights = torch.clamp(real_weights, -1.0, 1.0)
         binary_weights = binary_weights_no_grad.detach() - cliped_weights.detach() + cliped_weights
         #print(binary_weights, flush=True)
-        y = F.conv2d(x, binary_weights, stride=self.stride, padding=self.padding)
+        y = F.conv2d(x, binary_weights, stride=self.stride, padding=self.padding) # For training
 
         # Done as 2nd step. "
         # we constraint the weights to -1 and 1, and set the learning rate
             # in all convolution layers to 0 and retrain the BatchNorm layer for 1 epoch to
             # absorb the scaling factor."
         actualBinaryWeights = torch.sign(real_weights)
-        temp = F.conv2d(x, actualBinaryWeights, stride=self.stride, padding=self.padding)
+        temp = F.conv2d(x, actualBinaryWeights, stride=self.stride, padding=self.padding) # For inference
 
         return temp
 
