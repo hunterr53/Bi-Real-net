@@ -101,9 +101,9 @@ class BasicBlock(nn.Module):
             residual = self.downsample(x)
             if isPrint: saveFeaturesCsv(residual, str(globalCounter) + '_PyDownSample')
 
-            downSamp = nn.Sequential(nn.AvgPool2d(kernel_size=2, stride=self.stride)) # Won't work with Conv/BN layers b/c of weights
-            residualDebug = downSamp(x)
-            if isPrint: saveFeaturesCsv(residualDebug, str(globalCounter) + '_PyAvgPool')
+            # downSamp = nn.Sequential(nn.AvgPool2d(kernel_size=2, stride=self.stride)) # Won't work with Conv/BN layers b/c of weights
+            # residualDebug = downSamp(x)
+            # if isPrint: saveFeaturesCsv(residualDebug, str(globalCounter) + '_PyAvgPool')
 
         # print('Residual:', residual.shape, '- Out', out.shape)
         out += residual
@@ -159,6 +159,7 @@ class BiRealNet(nn.Module):
         x = self.layer4(x)
 
         x = self.avgpool(x)
+        if isPrint: saveFeaturesCsv(x, 'avgpoolFC')
         x = x.view(x.size(0), -1)
         x = self.fc(x)
 
