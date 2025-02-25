@@ -247,6 +247,7 @@ def main():
                 if not isDataEqual: break #Wait for target image to be pushed through model
                 # compute output
                 logits = model(images, isPrint=True)
+                print("MaxVal:", max(logits[0]), " Index:", np.argmax(logits[0]))
                 loss = criterion(logits, target)
 
                 break # Only get first batch/image

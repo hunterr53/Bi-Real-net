@@ -158,7 +158,7 @@ class BiRealNet(nn.Module):
         x = self.layer3(x)
         x = self.layer4(x)
 
-        x = self.avgpool(x)
+        x = self.avgpool(x) # Tensor([1, 512, 1, 1])
         if isPrint: saveFeaturesCsv(x, 'avgpoolFC')
         x = x.view(x.size(0), -1)
         x = self.fc(x)
