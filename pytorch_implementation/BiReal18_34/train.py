@@ -24,7 +24,6 @@ from torchsummary import summary
 from torch.autograd import Variable
 from birealnet import birealnet18
 
-
 # from mnist import MNIST
 
 # Seed
@@ -232,6 +231,7 @@ def main():
 
     saveWeights(model, isCuda)
     # Push First Test Image through model and save it to csv layer features
+    print("Pushing Test Image through model....")
     model = model.eval()
     isDataEqual = False
     while(isDataEqual == False):
@@ -244,16 +244,26 @@ def main():
                 target = target.cuda() if isCuda else target.cpu()
                 # isDataEqual = torch.equal(images, targetImage)
                 isDataEqual = images.allclose(targetImage)
-                if not isDataEqual: break #Wait for target image to be pushed through model
+                if not isDataEqual: 
+                    print("\tDataloader and Bin not equal. Trying again...")
+                    break #Wait for target image to be pushed through model
                 # compute output
-                logits = model(images, isPrint=True)
-                print("MaxVal:", max(logits[0]), " Index:", np.argmax(logits[0]))
+                start = time.perf_counter()
+                logits = model(images, isPrint=False)
+                stop = time.perf_counter()
+                print(f"\tForward Prop for Image_{i} took {(stop - start):.3f} seconds")
+
                 loss = criterion(logits, target)
+                print("\tImage_", i," Loss: ", loss)
+                print("\tMaxVal:", max(logits[0]), " Index:", np.argmax(logits[0]))
+                print("\tTarget: ", target, "\n\n")
 
                 break # Only get first batch/image
 
     # train the model
     epoch = start_epoch
+    valid_obj, valid_top1_acc, valid_top5_acc = validate(epoch, val_loader, model, criterion, args)
+
     while epoch < args.epochs:
         # saveWeights(model, isCuda)
         train_obj, train_top1_acc,  train_top5_acc = train(epoch,  train_loader, model, criterion_smooth, optimizer, scheduler)
@@ -382,7 +392,7 @@ def saveWeights(net, isCuda):
     for name, param in net.named_parameters():
         print(name, "\t", param.size())
 
-    print("\nWrite Model Weights/Bias to file:")
+    print("\nWrite Model Weights/Bias to file...")
     with open('pytorch_implementation/BiReal18_34/savedWeights/BiRealNetPreTrainedWeights.txt', "w+") as output:
         bnDebugCounter = 0
         downsampleDebugCounter = 0
@@ -391,41 +401,28 @@ def saveWeights(net, isCuda):
             # break #debug
             print(name, "\t", param.size())
             weights = param.data.numpy()
-            # print(weights)
-            # output.write(name + "\n" + str(weights) + "\n")
             output.write(name + "\n")
-            # if "bias" in name:
-            #     print("bias size:", weights.size)
-            #     for weight in weights:
-            #         output.write(str(weight) + " ")
-            #     output.write("\n")
 
             if "binary_conv" in name:
-                print("conv size:", weights.size)
                 for weight in weights: # (x, 1)
                     for weight2 in weight:
                         output.write(str(weight2) + " ")
                 output.write("\n")
 
             elif "conv1" in name:
-                print("conv size:", weights.size)
                 for weight in weights: # (x, 1, 1, 1)
                     for weight2 in weight: # (1, x, 1, 1)
                         for weight3 in weight2: # (1, 1, x, 1)
                             for weight4 in weight3: # (1, 1, 1, x)
                                 output.write(str(weight4) + " ")
-                        # output.write(str(weight2) + " ")
                 output.write("\n")
             elif "fc" in name: # FFN
                 fcDebugCounter += 1
                 if "bias" in name:
-                    print("bias size:", weights.size)
                     for weight in weights:
                         output.write(str(weight) + " ")
                     output.write("\n")
                 else:
-                    print("FFN size:", weights.size)
-                    print("FFN shape:", weights.shape)
                     if(outputLayer):
                         numNeurons = 10
                     else:
@@ -446,19 +443,16 @@ def saveWeights(net, isCuda):
             elif "bn" in name:
                 bnDebugCounter += 1
                 if "bias" in name:
-                    print("bias size:", weights.size)
                     for weight in weights:
                         output.write(str(weight) + " ")
                     output.write("\n")
                 else:
-                    print("BN weight:", weights.size)
                     for weight in weights:
                         output.write(str(weight) + " ")
                     output.write("\n")
 
             elif "downsample" in name:
                 downsampleDebugCounter += 1
-                print("Downsample weight:", weights.size)
                 for weight in weights: # (x, 1, 1, 1)
                     if(len(weights.shape) == 4):
                         for weight2 in weight: # (1, x, 1, 1)
@@ -477,7 +471,7 @@ def saveWeights(net, isCuda):
         print("Downsample Debug Counter:", downsampleDebugCounter)
         print("FC Debug Counter:", fcDebugCounter)
 
-    print("\nWrite Model BN Mean/Var to file:")
+    print("\nWrite Model BN Mean/Var to file...")
     with open('pytorch_implementation/BiReal18_34/savedWeights/BiRealNetPreTrainedBN.txt', "w+") as output:
         output.write("bn1.running_mean\n")
         try:
