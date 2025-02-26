@@ -229,7 +229,8 @@ def main():
         break # Only get first batch
     # For a batch of 164, test file out should be: ((3x224x224) * 164images + 1 Label) * 4 bytes per pixel / 1024 BytesToKiloBytes
 
-    saveWeights(model, isCuda)
+    saveWeightsBinary(model)
+    # saveWeights(model, isCuda)
     # Push First Test Image through model and save it to csv layer features
     print("Pushing Test Image through model....")
     model = model.eval()
@@ -265,7 +266,7 @@ def main():
     valid_obj, valid_top1_acc, valid_top5_acc = validate(epoch, val_loader, model, criterion, args)
 
     while epoch < args.epochs:
-        # saveWeights(model, isCuda)
+        saveWeightsBinary(model)
         train_obj, train_top1_acc,  train_top5_acc = train(epoch,  train_loader, model, criterion_smooth, optimizer, scheduler)
         valid_obj, valid_top1_acc, valid_top5_acc = validate(epoch, val_loader, model, criterion, args)
 
@@ -382,7 +383,6 @@ def validate(epoch, val_loader, model, criterion, args):
 def saveWeights(net, isCuda):
     net = net.cpu()
     #Save weights to CSV file
-    import pandas as pd
     outputLayer = False
     firstNode = True
     firstNodeWeights = ''
@@ -626,6 +626,25 @@ def saveWeights(net, isCuda):
                     output.write("\n")
 
     net = net.cuda() if isCuda else net.cpu()
+
+def saveWeightsBinary(net):
+    global isCuda
+
+    net = net.cpu()
+    stateDict = net.state_dict()
+    counter = 0
+    with open('pytorch_implementation/BiReal18_34/savedWeights/TrainedParameters.bin', 'wb') as file:
+        for name, module in net.state_dict().items():
+            if "num_batches_tracked" in name: continue
+
+            print(name)
+            numElements = torch.numel(module)
+            data = torch.flatten(module).numpy().astype(np.float32)
+            file.write(data)
+            counter += 1
+
+    net = net.cuda() if isCuda else net.cpu()
+
 
 if __name__ == '__main__':
     main()
