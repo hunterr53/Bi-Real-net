@@ -229,6 +229,7 @@ def main():
         break # Only get first batch
     # For a batch of 164, test file out should be: ((3x224x224) * 164images + 1 Label) * 4 bytes per pixel / 1024 BytesToKiloBytes
 
+    print("Saving Learnable Parameters to file...")
     saveWeightsBinary(model)
     saveWeights(model, isCuda)
     # Push First Test Image through model and save it to csv layer features
@@ -636,6 +637,7 @@ def saveWeightsBinary(net):
     with open('pytorch_implementation/BiReal18_34/savedWeights/TrainedParameters.bin', 'wb') as file:
         for name, module in net.state_dict().items():
             if "num_batches_tracked" in name: continue
+            if "binary_conv" in name: module = torch.sign(module) # Binarize weights
 
             print(name)
             numElements = torch.numel(module)
