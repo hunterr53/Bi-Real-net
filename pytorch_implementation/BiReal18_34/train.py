@@ -28,6 +28,7 @@ from birealnet import birealnet18
 
 # Seed
 random.seed(10)
+torch.manual_seed(10)
 torch.set_default_dtype(torch.float32) # change to float32 to match C
 torch.set_float32_matmul_precision('medium') # Default precision is 'highest', change to 'high' to match C
 
@@ -229,7 +230,7 @@ def main():
     saveWeightsBinary(model)
 
     # Push First Test Image through model and save it to csv layer features
-    print("Pushing Test Image through model....")
+    print("Pushing Test Image through model....\n")
     model = model.eval()
     isDataEqual = False
     binImages = np.empty((args.batch_size, 150529))
@@ -245,16 +246,16 @@ def main():
             binImages[i] = rowOfData
 
             start = time.perf_counter()
-            logits = model(image, isPrint=True)
+            logits = model(image, isPrint=False)
             stop = time.perf_counter()
-            print(f"\tForward Prop for Image_{i} took {(stop - start):.3f} seconds")
+            if (i < 5):
+                print(f"Forward Prop for Image_{i} took {(stop - start):.3f} seconds")
+                loss = criterion(logits, target)
+                print("\tImage_", i," Loss: ", loss)
+                print("\tMaxVal:", max(logits[0]), " Predication:", np.argmax(logits[0]), " Actual: ", target, "\n")
 
-            loss = criterion(logits, target)
-            print("\tImage_", i," Loss: ", loss)
-            print("\tMaxVal:", max(logits[0]), " Predication:", np.argmax(logits[0]), " Actual: ", target, "\n\n")
-
-    binImages = binImages.astype(np.float32) # 4 bytes per pixel
-    binImages.tofile('pytorch_implementation/BiReal18_34/savedWeights/TransformedTestData.bin', sep='')
+            binImages = binImages.astype(np.float32) # 4 bytes per pixel
+            binImages.tofile('pytorch_implementation/BiReal18_34/savedWeights/TransformedTestData.bin', sep='')
 
     # train the model
     epoch = start_epoch

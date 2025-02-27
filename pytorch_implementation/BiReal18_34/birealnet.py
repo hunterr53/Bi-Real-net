@@ -86,7 +86,7 @@ class BasicBlock(nn.Module):
 
     def forward(self, x):
         global globalCounter
-        isPrint = True
+        isPrint = False
         residual = x
         if isPrint: saveFeaturesCsv(residual,  str(globalCounter) + '_PyResidual')
 
