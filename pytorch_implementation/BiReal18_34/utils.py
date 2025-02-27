@@ -15,6 +15,12 @@ import torch.backends.cudnn as cudnn
 from PIL import Image
 from torch.autograd import Variable
 
+seed = 10
+np.random.seed(seed)
+torch.manual_seed(seed)
+random.seed(seed)
+torch.cuda.manual_seed_all(seed)
+
 #lighting data augmentation
 imagenet_pca = {
     'eigval': np.asarray([0.2175, 0.0188, 0.0045]),

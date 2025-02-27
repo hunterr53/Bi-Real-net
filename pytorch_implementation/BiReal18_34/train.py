@@ -27,8 +27,12 @@ from birealnet import birealnet18
 # from mnist import MNIST
 
 # Seed
-random.seed(10)
-torch.manual_seed(10)
+seed = 10
+np.random.seed(seed)
+torch.manual_seed(seed)
+random.seed(seed)
+torch.cuda.manual_seed_all(seed)
+
 torch.set_default_dtype(torch.float32) # change to float32 to match C
 torch.set_float32_matmul_precision('medium') # Default precision is 'highest', change to 'high' to match C
 
