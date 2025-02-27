@@ -230,7 +230,7 @@ def main():
     # For a batch of 164, test file out should be: ((3x224x224) * 164images + 1 Label) * 4 bytes per pixel / 1024 BytesToKiloBytes
 
     saveWeightsBinary(model)
-    # saveWeights(model, isCuda)
+    saveWeights(model, isCuda)
     # Push First Test Image through model and save it to csv layer features
     print("Pushing Test Image through model....")
     model = model.eval()
