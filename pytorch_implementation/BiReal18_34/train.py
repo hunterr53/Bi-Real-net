@@ -208,25 +208,21 @@ def main():
         val_dataset, batch_size=1, shuffle=False, # only one image per batch
         num_workers=0, pin_memory=True) 
     # # Show first image after transform, and then save the first batch of transformed images.
-    binImages = np.empty((args.batch_size, 150529))
-    targetImages = np.empty((5, 3, 224, 224))
-    for i, (images, target) in enumerate(val_loader_debug): # For each batch
-        if (i >= args.batch_size): break #Only get first batch images
-        label = target
-        image = images
-        if i < 5:
-            print('Label: ' + str(label.data))
-            targetImages[i] = image
-            # imagePrint = image.permute(1, 2, 0)
-            # plt.imshow(imagePrint)
-            # plt.show()
-        rowOfData = image.flatten().numpy()
-        rowOfData = np.insert(rowOfData, 0, label.data).reshape(1,-1) # Put label as first byte of data
-        binImages[i] = rowOfData
-        
-    targetImages = torch.Tensor(targetImages)
-    binImages = binImages.astype(np.float32) # 4 bytes per pixel
-    binImages.tofile('pytorch_implementation/BiReal18_34/savedWeights/TransformedTestData.bin', sep='')
+    # binImages = np.empty((args.batch_size, 150529))
+    # for i, (images, target) in enumerate(val_loader_debug): # For each batch
+    #     if (i >= args.batch_size): break #Only get first batch images
+    #     label = target
+    #     image = images
+    #     if i < 5:
+    #         print('Label: ' + str(label.data))
+    #         # imagePrint = image.permute(1, 2, 0)
+    #         # plt.imshow(imagePrint)
+    #         # plt.show()
+    #     rowOfData = image.flatten().numpy()
+    #     rowOfData = np.insert(rowOfData, 0, label.data).reshape(1,-1) # Put label as first byte of data
+    #     binImages[i] = rowOfData
+    # binImages = binImages.astype(np.float32) # 4 bytes per pixel
+    # binImages.tofile('pytorch_implementation/BiReal18_34/savedWeights/TransformedTestData.bin', sep='')
     ### For a batch of 164, test file out should be: ((3x224x224) * 164images + 1 Label) * 4 bytes per pixel / 1024 BytesToKiloBytes ###
 
     print("Saving Learnable Parameters to file...")
@@ -236,28 +232,29 @@ def main():
     print("Pushing Test Image through model....")
     model = model.eval()
     isDataEqual = False
-    while(isDataEqual == False):
-        with torch.no_grad():
-            for i, (images, target) in enumerate(val_loader_debug):
-                images = images.cuda() if isCuda else images.cpu()
-                target = target.cuda() if isCuda else target.cpu()
-                if (i < 5):
-                    targetImage = targetImages[i]
-                    isDataEqual = images.allclose(targetImages[i])
-                if not isDataEqual:
-                    print("\tDataloader and Bin not equal. Trying again...")
-                    break #Wait for target image to be pushed through model
-                # compute output
-                start = time.perf_counter()
-                logits = model(images, isPrint=True)
-                stop = time.perf_counter()
-                print(f"\tForward Prop for Image_{i} took {(stop - start):.3f} seconds")
+    binImages = np.empty((args.batch_size, 150529))
+    with torch.no_grad():
+        for i, (image, target) in enumerate(val_loader_debug):
+            if (i >= args.batch_size): break #Only get first batch images
+            image = image.cuda() if isCuda else image.cpu()
+            target = target.cuda() if isCuda else target.cpu()
+            
+            # Saving data to bin file
+            rowOfData = image.flatten().numpy()
+            rowOfData = np.insert(rowOfData, 0, target.data).reshape(1,-1) # Put label as first byte of data
+            binImages[i] = rowOfData
 
-                loss = criterion(logits, target)
-                print("\tImage_", i," Loss: ", loss)
-                print("\tMaxVal:", max(logits[0]), " Index:", np.argmax(logits[0]), "\tTarget: ", target, "\n\n")
+            start = time.perf_counter()
+            logits = model(image, isPrint=True)
+            stop = time.perf_counter()
+            print(f"\tForward Prop for Image_{i} took {(stop - start):.3f} seconds")
 
-                # break # Only get first batch/image
+            loss = criterion(logits, target)
+            print("\tImage_", i," Loss: ", loss)
+            print("\tMaxVal:", max(logits[0]), " Predication:", np.argmax(logits[0]), " Actual: ", target, "\n\n")
+
+    binImages = binImages.astype(np.float32) # 4 bytes per pixel
+    binImages.tofile('pytorch_implementation/BiReal18_34/savedWeights/TransformedTestData.bin', sep='')
 
     # train the model
     epoch = start_epoch

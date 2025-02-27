@@ -7,6 +7,7 @@ import torch.nn.functional as F
 import numpy as np
 
 globalCounter = 0
+globalImageNum = 0
 
 __all__ = ['birealnet18', 'birealnet34']
 
@@ -146,6 +147,9 @@ class BiRealNet(nn.Module):
         return nn.Sequential(*layers)
 
     def forward(self, x, isPrint=False):
+        global globalCounter
+        global globalImageNum
+
         x = x.to(torch.float32)
         if isPrint: saveFeaturesCsv(x, 'input0')
         x = self.conv1(x)
@@ -165,8 +169,8 @@ class BiRealNet(nn.Module):
         x = x.view(x.size(0), -1)
         x = self.fc(x)
 
-        global globalCounter
         globalCounter = 0
+        globalImageNum += 1
         return x
 
 
@@ -182,13 +186,26 @@ def birealnet34(pretrained=False, **kwargs):
     return model
 
 def saveFeaturesCsv(x, name):
+    global globalImageNum
     with torch.no_grad():
-        path = 'pytorch_implementation/BiReal18_34/savedWeights/' + 'features_' + name + '.csv'
+        directory_name = 'pytorch_implementation/BiReal18_34/savedWeights/image_' + str(globalImageNum)
+        path = directory_name + '/features_' + name + '.csv'
         # np.savetxt(path, x.cpu().detach().numpy(), delimiter=',')
-        
+        # Create the directory
+        try:
+            os.mkdir(directory_name)
+            print(f"Directory '{directory_name}' created successfully.")
+        except FileExistsError:
+            pass
+            # print(f"Directory '{directory_name}' already exists.")
+        except PermissionError:
+            print(f"Permission denied: Unable to create '{directory_name}'.")
+        except Exception as e:
+            print(f"An error occurred: {e}")
+            
         try:
             os.remove(path)
-            print(f"File '{path}' successfully deleted.")
+            # print(f"File '{path}' successfully deleted.")
         except FileNotFoundError:
             print(f"Error: File '{path}' not found.")
         except PermissionError:
