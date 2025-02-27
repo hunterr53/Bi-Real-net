@@ -158,7 +158,7 @@ def main():
     
     val_loader = torch.utils.data.DataLoader(
         val_dataset, batch_size=args.batch_size, shuffle=False,
-        num_workers=1, pin_memory=True)
+        num_workers=args.workers, pin_memory=True)
 
     def unpickle(file):
         import pickle
@@ -204,63 +204,60 @@ def main():
     # binImagesTest = binImagesTest.astype(np.uint8)
     # binImagesTest.tofile('pytorch_implementation/BiReal18_34/savedWeights/TransformedTestData.bin', sep='')
 
+    val_loader_debug = torch.utils.data.DataLoader(
+        val_dataset, batch_size=1, shuffle=False, # only one image per batch
+        num_workers=0, pin_memory=True) 
     # # Show first image after transform, and then save the first batch of transformed images.
-    binImages = np.empty((164, 150529))
-    for (images, target) in val_loader: # For each batch
-        for i in range(164):
-            label = target[i]
-            image = images[i]
-            if i == 0:
-                targetImage = image
-                # print('Label: ' + str(label.data))
-                # imagePrint = image.permute(1, 2, 0)
-                # plt.imshow(imagePrint)
-                # plt.show()
-            rowOfData = image.flatten().numpy()
-            rowOfData = np.insert(rowOfData, 0, label.data).reshape(1,-1) # Put label as first byte of data
-            binImages[i] = rowOfData
+    binImages = np.empty((args.batch_size, 150529))
+    targetImages = np.empty((5, 3, 224, 224))
+    for i, (images, target) in enumerate(val_loader_debug): # For each batch
+        if (i >= args.batch_size): break #Only get first batch images
+        label = target
+        image = images
+        if i < 5:
+            print('Label: ' + str(label.data))
+            targetImages[i] = image
+            # imagePrint = image.permute(1, 2, 0)
+            # plt.imshow(imagePrint)
+            # plt.show()
+        rowOfData = image.flatten().numpy()
+        rowOfData = np.insert(rowOfData, 0, label.data).reshape(1,-1) # Put label as first byte of data
+        binImages[i] = rowOfData
         
-        binImages = binImages.astype(np.float32) # 4 bytes per pixel
-        binImages.tofile('pytorch_implementation/BiReal18_34/savedWeights/TransformedTestData.bin', sep='')
-        
-        # test_df = pd.DataFrame(images[0][2].numpy().astype(np.float32))
-        # test_df.to_csv('pytorch_implementation/BiReal18_34/savedWeights/testImageZeroBlue.csv', index=False, header=False )
-            
-        break # Only get first batch
-    # For a batch of 164, test file out should be: ((3x224x224) * 164images + 1 Label) * 4 bytes per pixel / 1024 BytesToKiloBytes
+    targetImages = torch.Tensor(targetImages)
+    binImages = binImages.astype(np.float32) # 4 bytes per pixel
+    binImages.tofile('pytorch_implementation/BiReal18_34/savedWeights/TransformedTestData.bin', sep='')
+    ### For a batch of 164, test file out should be: ((3x224x224) * 164images + 1 Label) * 4 bytes per pixel / 1024 BytesToKiloBytes ###
 
     print("Saving Learnable Parameters to file...")
     saveWeightsBinary(model)
-    saveWeights(model, isCuda)
+
     # Push First Test Image through model and save it to csv layer features
     print("Pushing Test Image through model....")
     model = model.eval()
     isDataEqual = False
     while(isDataEqual == False):
-        val_loader_debug = torch.utils.data.DataLoader(
-            val_dataset, batch_size=1, shuffle=False, # only one image per batch
-            num_workers=1, pin_memory=True) 
         with torch.no_grad():
             for i, (images, target) in enumerate(val_loader_debug):
                 images = images.cuda() if isCuda else images.cpu()
                 target = target.cuda() if isCuda else target.cpu()
-                # isDataEqual = torch.equal(images, targetImage)
-                isDataEqual = images.allclose(targetImage)
-                if not isDataEqual: 
+                if (i < 5):
+                    targetImage = targetImages[i]
+                    isDataEqual = images.allclose(targetImages[i])
+                if not isDataEqual:
                     print("\tDataloader and Bin not equal. Trying again...")
                     break #Wait for target image to be pushed through model
                 # compute output
                 start = time.perf_counter()
-                logits = model(images, isPrint=False)
+                logits = model(images, isPrint=True)
                 stop = time.perf_counter()
                 print(f"\tForward Prop for Image_{i} took {(stop - start):.3f} seconds")
 
                 loss = criterion(logits, target)
                 print("\tImage_", i," Loss: ", loss)
-                print("\tMaxVal:", max(logits[0]), " Index:", np.argmax(logits[0]))
-                print("\tTarget: ", target, "\n\n")
+                print("\tMaxVal:", max(logits[0]), " Index:", np.argmax(logits[0]), "\tTarget: ", target, "\n\n")
 
-                break # Only get first batch/image
+                # break # Only get first batch/image
 
     # train the model
     epoch = start_epoch
@@ -639,7 +636,7 @@ def saveWeightsBinary(net):
             if "num_batches_tracked" in name: continue
             if "binary_conv" in name: module = torch.sign(module) # Binarize weights
 
-            print(name)
+            # print(name)
             numElements = torch.numel(module)
             data = torch.flatten(module).numpy().astype(np.float32)
             file.write(data)

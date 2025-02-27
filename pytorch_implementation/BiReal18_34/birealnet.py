@@ -36,8 +36,8 @@ class BinaryActivation(nn.Module):
         out3 = out2 * mask3.type(torch.float32) + 1 * (1- mask3.type(torch.float32))
         out = out_forward.detach() - out3.detach() + out3
 
-        # return out        
-        out_forward[out_forward < 0] = 0 # 1 or 0 values
+        # return out
+        # out_forward[out_forward < 0] = 0 # 1 or 0 values
         return out_forward # Match C Code. Don't need piecewise function during inference
 
 class HardBinaryConv(nn.Module):
@@ -65,7 +65,7 @@ class HardBinaryConv(nn.Module):
             # in all convolution layers to 0 and retrain the BatchNorm layer for 1 epoch to
             # absorb the scaling factor."
         actualBinaryWeights = torch.sign(real_weights)
-        actualBinaryWeights[actualBinaryWeights < 0] = 0 # 1 or 0 values
+        # actualBinaryWeights[actualBinaryWeights < 0] = 0 # 1 or 0 values
         temp = F.conv2d(x, actualBinaryWeights, stride=self.stride, padding=self.padding) # For inference
 
         return temp
@@ -85,7 +85,7 @@ class BasicBlock(nn.Module):
 
     def forward(self, x):
         global globalCounter
-        isPrint = False
+        isPrint = True
         residual = x
         if isPrint: saveFeaturesCsv(residual,  str(globalCounter) + '_PyResidual')
 
@@ -165,6 +165,8 @@ class BiRealNet(nn.Module):
         x = x.view(x.size(0), -1)
         x = self.fc(x)
 
+        global globalCounter
+        globalCounter = 0
         return x
 
 
@@ -195,7 +197,7 @@ def saveFeaturesCsv(x, name):
              print(f"Error: An unexpected error occurred while deleting '{path}': {e}")
         
         for i, kernel in enumerate(x[0]):
+            if i >= 3:
+                break # Only save first 3 kernels
             test_df = pd.DataFrame(kernel.numpy().astype(np.float32))
             test_df.to_csv(path, index=False, mode = 'a', header=True)
-            if i > 3:
-                break # Only save first 3 kernels
