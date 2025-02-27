@@ -194,7 +194,7 @@ def saveFeaturesCsv(x, name):
         # Create the directory
         try:
             os.mkdir(directory_name)
-            print(f"Directory '{directory_name}' created successfully.")
+            # print(f"Directory '{directory_name}' created successfully.")
         except FileExistsError:
             pass
             # print(f"Directory '{directory_name}' already exists.")
@@ -207,7 +207,8 @@ def saveFeaturesCsv(x, name):
             os.remove(path)
             # print(f"File '{path}' successfully deleted.")
         except FileNotFoundError:
-            print(f"Error: File '{path}' not found.")
+            pass
+            # print(f"Error: File '{path}' not found.")
         except PermissionError:
             print(f"Error: Permission denied to delete '{path}'.")
         except OSError as e:
