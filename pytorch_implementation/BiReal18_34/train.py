@@ -232,11 +232,9 @@ def main():
 
     print("Saving Learnable Parameters to file...")
     saveWeightsBinary(model)
-
     # Push First Test Image through model and save it to csv layer features
     print("Pushing Test Image through model....\n")
     model = model.eval()
-    isDataEqual = False
     binImages = np.empty((args.batch_size, 150529))
     with torch.no_grad():
         for i, (image, target) in enumerate(val_loader_debug):
@@ -266,7 +264,6 @@ def main():
     valid_obj, valid_top1_acc, valid_top5_acc = validate(epoch, val_loader, model, criterion, args)
 
     while epoch < args.epochs:
-        saveWeightsBinary(model)
         train_obj, train_top1_acc,  train_top5_acc = train(epoch,  train_loader, model, criterion_smooth, optimizer, scheduler)
         valid_obj, valid_top1_acc, valid_top5_acc = validate(epoch, val_loader, model, criterion, args)
 
@@ -282,6 +279,8 @@ def main():
             'best_top1_acc': best_top1_acc,
             'optimizer' : optimizer.state_dict(),
             }, is_best, args.save)
+        
+        saveWeightsBinary(model)
 
         epoch += 1
 
