@@ -108,7 +108,7 @@ def main():
     if os.path.exists(checkpoint_tar):
         logging.info('loading checkpoint {} ..........'.format(checkpoint_tar))
         print('loading checkpoint {} ..........'.format(checkpoint_tar))
-        checkpoint = torch.load(checkpoint_tar)
+        checkpoint = torch.load(checkpoint_tar) if isCuda else torch.load(checkpoint_tar, map_location='cpu')
         start_epoch = checkpoint['epoch']
         best_top1_acc = checkpoint['best_top1_acc']
         model.load_state_dict(checkpoint['state_dict'], strict=False)
@@ -256,8 +256,9 @@ def main():
                 print("\tImage_", i," Loss: ", loss)
                 print("\tMaxVal:", max(logits[0]), " Predication:", np.argmax(logits[0]), " Actual: ", target, "\n")
 
-            binImages = binImages.astype(np.float32) # 4 bytes per pixel
-            binImages.tofile('pytorch_implementation/BiReal18_34/savedWeights/TransformedTestData.bin', sep='')
+    binImages = binImages.astype(np.float32) # 4 bytes per pixel
+    binImages.tofile('pytorch_implementation/BiReal18_34/savedWeights/TransformedTestData.bin', sep='')
+    print("Saved Test Batch to .bin File.")
 
     # train the model
     epoch = start_epoch
