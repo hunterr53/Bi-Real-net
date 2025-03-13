@@ -38,7 +38,6 @@ class BinaryActivation(nn.Module):
         out = out_forward.detach() - out3.detach() + out3
 
         # return out
-        # out_forward[out_forward < 0] = 0 # 1 or 0 values
         return out_forward # Match C Code. Don't need piecewise function during inference
 
 class HardBinaryConv(nn.Module):
@@ -49,6 +48,7 @@ class HardBinaryConv(nn.Module):
         self.number_of_weights = in_chn * out_chn * kernel_size * kernel_size
         self.shape = (out_chn, in_chn, kernel_size, kernel_size)
         self.weights = nn.Parameter(torch.rand((self.number_of_weights,1)) * 0.001, requires_grad=True)
+        self.requires_grad_(False) # Required for test to absorb BN
 
     def forward(self, x):
         real_weights = self.weights.view(self.shape)
@@ -61,12 +61,11 @@ class HardBinaryConv(nn.Module):
         #print(binary_weights, flush=True)
         y = F.conv2d(x, binary_weights, stride=self.stride, padding=self.padding) # For training
 
-        # Done as 2nd step. 
+        # Done as 2nd step.
             # "we constraint the weights to -1 and 1, and set the learning rate
             # in all convolution layers to 0 and retrain the BatchNorm layer for 1 epoch to
             # absorb the scaling factor."
         actualBinaryWeights = torch.sign(real_weights)
-        # actualBinaryWeights[actualBinaryWeights < 0] = 0 # 1 or 0 values
         temp = F.conv2d(x, actualBinaryWeights, stride=self.stride, padding=self.padding) # For inference
 
         return temp

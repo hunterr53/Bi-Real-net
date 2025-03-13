@@ -37,7 +37,7 @@ torch.set_default_dtype(torch.float32) # change to float32 to match C
 torch.set_float32_matmul_precision('medium') # Default precision is 'highest', change to 'high' to match C
 
 parser = argparse.ArgumentParser("birealnet")
-parser.add_argument('--batch_size', type=int, default=164, help='batch size')
+parser.add_argument('--batch_size', type=int, default=100, help='batch size')
 parser.add_argument('--epochs', type=int, default=256, help='num of training epochs')
 parser.add_argument('--learning_rate', type=float, default=0.001, help='init learning rate')
 parser.add_argument('--momentum', type=float, default=0.9, help='momentum')
@@ -45,7 +45,7 @@ parser.add_argument('--weight_decay', type=float, default=0, help='weight decay'
 parser.add_argument('--save', type=str, default='./models', help='path for saving trained models')
 parser.add_argument('--data', metavar='DIR', help='path to dataset')
 parser.add_argument('--label_smooth', type=float, default=0.1, help='label smoothing')
-parser.add_argument('-j', '--workers', default=4, type=int, metavar='N',
+parser.add_argument('-j', '--workers', default=5, type=int, metavar='N',
                     help='number of data loading workers (default: 4)')
 args = parser.parse_args()
 
@@ -114,6 +114,7 @@ def main():
         model.load_state_dict(checkpoint['state_dict'], strict=False)
         logging.info("loaded checkpoint {} epoch = {}" .format(checkpoint_tar, checkpoint['epoch']))
 
+    start_epoch = 1
     # adjust the learning rate according to the checkpoint
     for epoch in range(start_epoch):
         scheduler.step()
@@ -230,15 +231,20 @@ def main():
     # binImages.tofile('pytorch_implementation/BiReal18_34/savedWeights/TransformedTestData.bin', sep='')
     ### For a batch of 164, test file out should be: ((3x224x224) * 164images + 1 Label) * 4 bytes per pixel / 1024 BytesToKiloBytes ###
 
+
+    # Set first layer weights to binary bits after training and before BN absorbtion
+    for i, weight in enumerate(model.module.conv1.weight):
+        model.module.conv1.weight.data[i] = torch.sign(weight)
+
     print("Saving Learnable Parameters to file...")
     saveWeightsBinary(model)
     # Push First Test Image through model and save it to csv layer features
     print("Pushing Test Image through model....\n")
     model = model.eval()
-    binImages = np.empty((args.batch_size, 150529))
+    binImages = np.empty((164, 150529))
     with torch.no_grad():
         for i, (image, target) in enumerate(val_loader_debug):
-            if (i >= args.batch_size): break #Only get first batch images
+            if (i >= 164): break #Only get first batch images
             image = image.cuda() if isCuda else image.cpu()
             target = target.cuda() if isCuda else target.cpu()
             
@@ -260,10 +266,10 @@ def main():
     binImages.tofile('pytorch_implementation/BiReal18_34/savedWeights/TransformedTestData.bin', sep='')
     print("Saved Test Batch to .bin File.")
 
-    # train the model
-    epoch = start_epoch
-    valid_obj, valid_top1_acc, valid_top5_acc = validate(epoch, val_loader, model, criterion, args)
+    # epoch = start_epoch
+    # valid_obj, valid_top1_acc, valid_top5_acc = validate(epoch, val_loader, model, criterion, args)
 
+    # train the model
     while epoch < args.epochs:
         train_obj, train_top1_acc,  train_top5_acc = train(epoch,  train_loader, model, criterion_smooth, optimizer, scheduler)
         valid_obj, valid_top1_acc, valid_top5_acc = validate(epoch, val_loader, model, criterion, args)
