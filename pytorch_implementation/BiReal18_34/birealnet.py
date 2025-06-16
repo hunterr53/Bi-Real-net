@@ -149,24 +149,48 @@ class BiRealNet(nn.Module):
         global globalCounter
         global globalImageNum
 
+        # Max int for fixed point
+        maxInt = 0
+
         x = x.to(torch.float32)
+        if np.max(np.abs(x.numpy())) > maxInt:
+            maxInt = np.max(np.abs(x.numpy())) # Finding max fixed point value
         if isPrint: saveFeaturesCsv(x, 'input0')
         x = self.conv1(x)
+        if np.max(np.abs(x.numpy())) > maxInt:
+            maxInt = np.max(np.abs(x.numpy())) # Finding max fixed point value
         if isPrint: saveFeaturesCsv(x, 'conv1')
         x = self.bn1(x)
+        if np.max(np.abs(x.numpy())) > maxInt:
+            maxInt = np.max(np.abs(x.numpy())) # Finding max fixed point value
         if isPrint: saveFeaturesCsv(x, 'bn1')
         x = self.maxpool(x)
+        if np.max(np.abs(x.numpy())) > maxInt:
+            maxInt = np.max(np.abs(x.numpy())) # Finding max fixed point value
         if isPrint: saveFeaturesCsv(x, 'maxpool1')
 
         x = self.layer1(x)
+        if np.max(np.abs(x.numpy())) > maxInt:
+            maxInt = np.max(np.abs(x.numpy())) # Finding max fixed point value
         x = self.layer2(x)
+        if np.max(np.abs(x.numpy())) > maxInt:
+            maxInt = np.max(np.abs(x.numpy())) # Finding max fixed point value
         x = self.layer3(x)
+        if np.max(np.abs(x.numpy())) > maxInt:
+            maxInt = np.max(np.abs(x.numpy())) # Finding max fixed point value
         x = self.layer4(x)
+        if np.max(np.abs(x.numpy())) > maxInt:
+            maxInt = np.max(np.abs(x.numpy())) # Finding max fixed point value
 
         x = self.avgpool(x) # Tensor([1, 512, 1, 1])
+        if np.max(np.abs(x.numpy())) > maxInt:
+            maxInt = np.max(np.abs(x.numpy())) # Finding max fixed point value
         if isPrint: saveFeaturesCsv(x, 'avgpoolFC')
         x = x.view(x.size(0), -1)
         x = self.fc(x)
+        if np.max(np.abs(x.numpy())) > maxInt:
+            maxInt = np.max(np.abs(x.numpy())) # Finding max fixed point value
+        print('Max Int:', maxInt, flush=True)
 
         globalCounter = 0
         globalImageNum += 1
