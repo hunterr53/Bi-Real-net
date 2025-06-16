@@ -8,6 +8,7 @@ import numpy as np
 
 globalCounter = 0
 globalImageNum = 0
+maxInt = 0 # Used to find max fixed point value
 
 __all__ = ['birealnet18', 'birealnet34']
 
@@ -84,24 +85,34 @@ class BasicBlock(nn.Module):
         self.stride = stride
 
     def forward(self, x):
-        global globalCounter
+        global globalCounter, maxInt
         isPrint = False
         residual = x
         if isPrint: saveFeaturesCsv(residual,  str(globalCounter) + '_PyResidual')
+        if np.max(np.abs(x.numpy())) > maxInt:
+            maxInt = np.max(np.abs(x.numpy())) # Finding max fixed point value
 
         out = self.binary_activation(x)
         if isPrint: saveFeaturesCsv(out, str(globalCounter) + '_PyBinaryAct')
+        if np.max(np.abs(out.numpy())) > maxInt:
+            maxInt = np.max(np.abs(out.numpy())) # Finding max fixed point value
 
         out = self.binary_conv(out)
         if isPrint: saveFeaturesCsv(out, str(globalCounter) + '_PyConv')
+        if np.max(np.abs(out.numpy())) > maxInt:
+            maxInt = np.max(np.abs(out.numpy())) # Finding max fixed point value
         
         out = self.bn1(out)
         if isPrint: saveFeaturesCsv(out, str(globalCounter) + '_PyBN')
+        if np.max(np.abs(out.numpy())) > maxInt:
+            maxInt = np.max(np.abs(out.numpy())) # Finding max fixed point value
 
         if self.downsample is not None:
             # print(residual.shape, 'pre downsample')
             residual = self.downsample(x)
             if isPrint: saveFeaturesCsv(residual, str(globalCounter) + '_PyDownSample')
+            if np.max(np.abs(residual.numpy())) > maxInt:
+                maxInt = np.max(np.abs(residual.numpy())) # Finding max fixed point value
 
             # downSamp = nn.Sequential(nn.AvgPool2d(kernel_size=2, stride=self.stride)) # Won't work with Conv/BN layers b/c of weights
             # residualDebug = downSamp(x)
@@ -110,6 +121,8 @@ class BasicBlock(nn.Module):
         # print('Residual:', residual.shape, '- Out', out.shape)
         out += residual
         if isPrint: saveFeaturesCsv(out, str(globalCounter) + '_PyAdd')
+        if np.max(np.abs(out.numpy())) > maxInt:
+            maxInt = np.max(np.abs(out.numpy())) # Finding max fixed point value
 
         globalCounter += 1
         return out
@@ -148,9 +161,7 @@ class BiRealNet(nn.Module):
     def forward(self, x, isPrint=False):
         global globalCounter
         global globalImageNum
-
-        # Max int for fixed point
-        maxInt = 0
+        global maxInt
 
         x = x.to(torch.float32)
         if np.max(np.abs(x.numpy())) > maxInt:
