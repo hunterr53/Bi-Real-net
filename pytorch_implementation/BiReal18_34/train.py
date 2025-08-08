@@ -233,11 +233,12 @@ def main():
 
 
     # Set first layer weights to binary bits after training and before BN absorbtion
-    for i, weight in enumerate(model.module.conv1.weight):
-        model.module.conv1.weight.data[i] = torch.sign(weight)
+    # for i, weight in enumerate(model.module.conv1.weight):
+    #     model.module.conv1.weight.data[i] = torch.sign(weight)
 
     print("Saving Learnable Parameters to file...")
     saveWeightsBinary(model)
+    saveWeights(model, False)
     # Push First Test Image through model and save it to csv layer features
     print("Pushing Test Image through model....\n")
     model = model.eval()
@@ -254,7 +255,7 @@ def main():
             binImages[i] = rowOfData
 
             start = time.perf_counter()
-            logits = model(image, isPrint=False)
+            logits = model(image, isPrint=True)
             stop = time.perf_counter()
             if (i < 5):
                 print(f"Forward Prop for Image_{i} took {(stop - start):.3f} seconds")
@@ -399,7 +400,7 @@ def saveWeights(net, isCuda):
         print(name, "\t", param.size())
 
     print("\nWrite Model Weights/Bias to file...")
-    with open('pytorch_implementation/BiReal18_34/savedWeights/BiRealNetPreTrainedWeights.txt', "w+") as output:
+    with open('pytorch_implementation/BiReal18_34/savedWeights/BiRealNetPreTrainedWeights.csv', "w+") as output:
         bnDebugCounter = 0
         downsampleDebugCounter = 0
         fcDebugCounter = 0
@@ -412,21 +413,23 @@ def saveWeights(net, isCuda):
             if "binary_conv" in name:
                 for weight in weights: # (x, 1)
                     for weight2 in weight:
-                        output.write(str(weight2) + " ")
+                        output.write(str(weight2) + ",")
                 output.write("\n")
 
             elif "conv1" in name:
                 for weight in weights: # (x, 1, 1, 1)
                     for weight2 in weight: # (1, x, 1, 1)
+                        output.write("\n")
                         for weight3 in weight2: # (1, 1, x, 1)
+                            output.write("\n")
                             for weight4 in weight3: # (1, 1, 1, x)
-                                output.write(str(weight4) + " ")
+                                output.write(str(weight4) + ",")
                 output.write("\n")
             elif "fc" in name: # FFN
                 fcDebugCounter += 1
                 if "bias" in name:
                     for weight in weights:
-                        output.write(str(weight) + " ")
+                        output.write(str(weight) + ",")
                     output.write("\n")
                 else:
                     if(outputLayer):
@@ -437,7 +440,7 @@ def saveWeights(net, isCuda):
 
                     for weight in weights:
                         for weight2 in weight:
-                            output.write(str(weight2) + " ")
+                            output.write(str(weight2) + ",")
                             if(firstNode):
                                 # print(weight2)
                                 firstNodeWeights = firstNodeWeights + (str(weight2) + "\n")
@@ -450,11 +453,11 @@ def saveWeights(net, isCuda):
                 bnDebugCounter += 1
                 if "bias" in name:
                     for weight in weights:
-                        output.write(str(weight) + " ")
+                        output.write(str(weight) + ",")
                     output.write("\n")
                 else:
                     for weight in weights:
-                        output.write(str(weight) + " ")
+                        output.write(str(weight) + ",")
                     output.write("\n")
 
             elif "downsample" in name:
@@ -464,9 +467,9 @@ def saveWeights(net, isCuda):
                         for weight2 in weight: # (1, x, 1, 1)
                             for weight3 in weight2: # (1, 1, x, 1)
                                 for weight4 in weight3: # (1, 1, 1, x)
-                                    output.write(str(weight4) + " ")
+                                    output.write(str(weight4) + ",")
                     else: # batch norm
-                        output.write(str(weight) + " ")
+                        output.write(str(weight) + ",")
                 output.write("\n")
 
             else:

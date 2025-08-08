@@ -279,6 +279,7 @@ def saveFeaturesCsv(x, name):
     with torch.no_grad():
         directory_name = 'pytorch_implementation/BiReal18_34/savedWeights/image_' + str(globalImageNum)
         path = directory_name + '/features_' + name + '.csv'
+        pathW = directory_name + '/weights_' + name + '.csv'
         # np.savetxt(path, x.cpu().detach().numpy(), delimiter=',')
         # Create the directory
         try:
@@ -308,3 +309,5 @@ def saveFeaturesCsv(x, name):
                 break # Only save first 3 kernels
             test_df = pd.DataFrame(kernel.numpy().astype(np.float32))
             test_df.to_csv(path, index=False, mode = 'a', header=True)
+            test_df = pd.DataFrame(x[0][i].numpy().astype(np.float32))
+            test_df.to_csv(pathW, index=False, mode = 'a', header=False)
