@@ -242,10 +242,10 @@ def main():
     # Push First Test Image through model and save it to csv layer features
     print("Pushing Test Image through model....\n")
     model = model.eval()
-    binImages = np.empty((164, 150529))
+    binImages = np.empty((10, 150529))
     with torch.no_grad():
         for i, (image, target) in enumerate(val_loader_debug):
-            if (i >= 164): break #Only get first batch images
+            if (i >= 10): break #Only get first batch images
             image = image.cuda() if isCuda else image.cpu()
             target = target.cuda() if isCuda else target.cpu()
             

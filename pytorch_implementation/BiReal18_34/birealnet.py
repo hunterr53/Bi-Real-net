@@ -90,33 +90,33 @@ class BasicBlock(nn.Module):
         isPrint = False
         residual = x
         if isPrint: saveFeaturesCsv(residual,  str(globalCounter) + '_PyResidual')
-        if np.max(np.abs(x.numpy())) > maxInt:
+        if np.max(np.abs(x.detach().numpy())) > maxInt:
             maxInt = np.max(np.abs(x.numpy())) # Finding max fixed point value
-        decTemp = np.modf(x.numpy())[0]
+        decTemp = np.modf(x.detach().numpy())[0]
         if np.min(np.abs(decTemp)) < minDecimal and np.min(np.abs(decTemp)) != 0:
             minDecimal = np.min(np.abs(decTemp)) # Finding most precise decimal value
 
         out = self.binary_activation(x)
         if isPrint: saveFeaturesCsv(out, str(globalCounter) + '_PyBinaryAct')
-        if np.max(np.abs(out.numpy())) > maxInt:
-            maxInt = np.max(np.abs(out.numpy())) # Finding max fixed point value
-        decTemp = np.modf(out.numpy())[0]
+        if np.max(np.abs(x.detach().numpy())) > maxInt:
+            maxInt = np.max(np.abs(x.numpy())) # Finding max fixed point value
+        decTemp = np.modf(x.detach().numpy())[0]
         if np.min(np.abs(decTemp)) < minDecimal and np.min(np.abs(decTemp)) != 0:
             minDecimal = np.min(np.abs(decTemp)) # Finding most precise decimal value
 
         out = self.binary_conv(out)
         if isPrint: saveFeaturesCsv(out, str(globalCounter) + '_PyConv')
-        if np.max(np.abs(out.numpy())) > maxInt:
-            maxInt = np.max(np.abs(out.numpy())) # Finding max fixed point value
-        decTemp = np.modf(out.numpy())[0]
+        if np.max(np.abs(x.detach().numpy())) > maxInt:
+            maxInt = np.max(np.abs(x.numpy())) # Finding max fixed point value
+        decTemp = np.modf(x.detach().numpy())[0]
         if np.min(np.abs(decTemp)) < minDecimal and np.min(np.abs(decTemp)) != 0:
             minDecimal = np.min(np.abs(decTemp)) # Finding most precise decimal value
         
         out = self.bn1(out)
         if isPrint: saveFeaturesCsv(out, str(globalCounter) + '_PyBN')
-        if np.max(np.abs(out.numpy())) > maxInt:
-            maxInt = np.max(np.abs(out.numpy())) # Finding max fixed point value
-        decTemp = np.modf(out.numpy())[0]
+        if np.max(np.abs(x.detach().numpy())) > maxInt:
+            maxInt = np.max(np.abs(x.numpy())) # Finding max fixed point value
+        decTemp = np.modf(x.detach().numpy())[0]
         if np.min(np.abs(decTemp)) < minDecimal and np.min(np.abs(decTemp)) != 0:
             minDecimal = np.min(np.abs(decTemp)) # Finding most precise decimal value
 
@@ -124,9 +124,9 @@ class BasicBlock(nn.Module):
             # print(residual.shape, 'pre downsample')
             residual = self.downsample(x)
             if isPrint: saveFeaturesCsv(residual, str(globalCounter) + '_PyDownSample')
-            if np.max(np.abs(residual.numpy())) > maxInt:
+            if np.max(np.abs(residual.detach().numpy())) > maxInt:
                 maxInt = np.max(np.abs(residual.numpy())) # Finding max fixed point value
-            if np.min(np.modf(residual.numpy())) > minDecimal:
+            if np.min(np.modf(residual.detach().numpy())) > minDecimal:
                 minDecimal = np.min(np.modf(x.numpy())) # Finding most precise decimal value
 
             # downSamp = nn.Sequential(nn.AvgPool2d(kernel_size=2, stride=self.stride)) # Won't work with Conv/BN layers b/c of weights
@@ -136,9 +136,9 @@ class BasicBlock(nn.Module):
         # print('Residual:', residual.shape, '- Out', out.shape)
         out += residual
         if isPrint: saveFeaturesCsv(out, str(globalCounter) + '_PyAdd')
-        if np.max(np.abs(out.numpy())) > maxInt:
-            maxInt = np.max(np.abs(out.numpy())) # Finding max fixed point value
-        decTemp = np.modf(out.numpy())[0]
+        if np.max(np.abs(x.detach().numpy())) > maxInt:
+            maxInt = np.max(np.abs(x.numpy())) # Finding max fixed point value
+        decTemp = np.modf(x.detach().numpy())[0]
         if np.min(np.abs(decTemp)) < minDecimal and np.min(np.abs(decTemp)) != 0:
             minDecimal = np.min(np.abs(decTemp)) # Finding most precise decimal value
 
@@ -190,70 +190,70 @@ class BiRealNet(nn.Module):
         if isPrint: saveFeaturesCsv(x, 'input0')
 
         x = self.conv1(x)
-        if np.max(np.abs(x.numpy())) > maxInt:
+        if np.max(np.abs(x.detach().numpy())) > maxInt:
             maxInt = np.max(np.abs(x.numpy())) # Finding max fixed point value
-        decTemp = np.modf(x.numpy())[0]
+        decTemp = np.modf(x.detach().numpy())[0]
         if np.min(np.abs(decTemp)) < minDecimal and np.min(np.abs(decTemp)) != 0:
             minDecimal = np.min(np.abs(decTemp)) # Finding most precise decimal value
         if isPrint: saveFeaturesCsv(x, 'conv1')
 
         x = self.bn1(x)
-        if np.max(np.abs(x.numpy())) > maxInt:
+        if np.max(np.abs(x.detach().numpy())) > maxInt:
             maxInt = np.max(np.abs(x.numpy())) # Finding max fixed point value
-        decTemp = np.modf(x.numpy())[0]
+        decTemp = np.modf(x.detach().numpy())[0]
         if np.min(np.abs(decTemp)) < minDecimal and np.min(np.abs(decTemp)) != 0:
             minDecimal = np.min(np.abs(decTemp)) # Finding most precise decimal value
         if isPrint: saveFeaturesCsv(x, 'bn1')
 
         x = self.maxpool(x)
-        if np.max(np.abs(x.numpy())) > maxInt:
+        if np.max(np.abs(x.detach().numpy())) > maxInt:
             maxInt = np.max(np.abs(x.numpy())) # Finding max fixed point value
-        decTemp = np.modf(x.numpy())[0]
+        decTemp = np.modf(x.detach().numpy())[0]
         if np.min(np.abs(decTemp)) < minDecimal and np.min(np.abs(decTemp)) != 0:
             minDecimal = np.min(np.abs(decTemp)) # Finding most precise decimal value
         if isPrint: saveFeaturesCsv(x, 'maxpool1')
 
         x = self.layer1(x)
-        if np.max(np.abs(x.numpy())) > maxInt:
+        if np.max(np.abs(x.detach().numpy())) > maxInt:
             maxInt = np.max(np.abs(x.numpy())) # Finding max fixed point value
-        decTemp = np.modf(x.numpy())[0]
+        decTemp = np.modf(x.detach().numpy())[0]
         if np.min(np.abs(decTemp)) < minDecimal and np.min(np.abs(decTemp)) != 0:
             minDecimal = np.min(np.abs(decTemp)) # Finding most precise decimal value
 
         x = self.layer2(x)
-        if np.max(np.abs(x.numpy())) > maxInt:
+        if np.max(np.abs(x.detach().numpy())) > maxInt:
             maxInt = np.max(np.abs(x.numpy())) # Finding max fixed point value
-        decTemp = np.modf(x.numpy())[0]
+        decTemp = np.modf(x.detach().numpy())[0]
         if np.min(np.abs(decTemp)) < minDecimal and np.min(np.abs(decTemp)) != 0:
             minDecimal = np.min(np.abs(decTemp)) # Finding most precise decimal value
 
         x = self.layer3(x)
-        if np.max(np.abs(x.numpy())) > maxInt:
+        if np.max(np.abs(x.detach().numpy())) > maxInt:
             maxInt = np.max(np.abs(x.numpy())) # Finding max fixed point value
-        decTemp = np.modf(x.numpy())[0]
+        decTemp = np.modf(x.detach().numpy())[0]
         if np.min(np.abs(decTemp)) < minDecimal and np.min(np.abs(decTemp)) != 0:
             minDecimal = np.min(np.abs(decTemp)) # Finding most precise decimal value
 
         x = self.layer4(x)
-        if np.max(np.abs(x.numpy())) > maxInt:
+        if np.max(np.abs(x.detach().numpy())) > maxInt:
             maxInt = np.max(np.abs(x.numpy())) # Finding max fixed point value
-        decTemp = np.modf(x.numpy())[0]
+        decTemp = np.modf(x.detach().numpy())[0]
         if np.min(np.abs(decTemp)) < minDecimal and np.min(np.abs(decTemp)) != 0:
             minDecimal = np.min(np.abs(decTemp)) # Finding most precise decimal value
 
         x = self.avgpool(x) # Tensor([1, 512, 1, 1])
-        if np.max(np.abs(x.numpy())) > maxInt:
+        if np.max(np.abs(x.detach().numpy())) > maxInt:
             maxInt = np.max(np.abs(x.numpy())) # Finding max fixed point value
-        decTemp = np.modf(x.numpy())[0]
+        decTemp = np.modf(x.detach().numpy())[0]
         if np.min(np.abs(decTemp)) < minDecimal and np.min(np.abs(decTemp)) != 0:
             minDecimal = np.min(np.abs(decTemp)) # Finding most precise decimal value
         if isPrint: saveFeaturesCsv(x, 'avgpoolFC')
 
         x = x.view(x.size(0), -1)
         x = self.fc(x)
-        if np.max(np.abs(x.numpy())) > maxInt:
+        if np.max(np.abs(x.detach().numpy())) > maxInt:
             maxInt = np.max(np.abs(x.numpy())) # Finding max fixed point value
-        decTemp = np.modf(x.numpy())[0]
+        decTemp = np.modf(x.detach().numpy())[0]
         if np.min(np.abs(decTemp)) < minDecimal and np.min(np.abs(decTemp)) != 0:
             minDecimal = np.min(np.abs(decTemp)) # Finding most precise decimal value
         print(f"Max Int: {maxInt}\tMinDec: {minDecimal}")
