@@ -666,9 +666,14 @@ def saveWeightsPerLayer(net):
         if "num_batches_tracked" in name: continue
         if "binary_conv" in name: module = torch.sign(module) # Binarize weights
 
-        name = name.replace('module.', '')
-        name = name.replace('.', '_')
-        with open('pytorch_implementation/BiReal18_34/savedWeights/WEIGHTS/' + str(counter) + '_' + name + '.bin', 'wb') as file:
+        base_name = name.replace('module', '')
+        base_name = base_name.replace('layer', '')
+        base_name = base_name.replace('weight', 'w').replace('bias', 'b')
+        base_name = base_name.replace('running_mean', 'rm').replace('running_var', 'rv')
+        base_name = base_name.replace('.', '')
+        base_name = base_name.replace('bn1', 'bn_')
+        base_name = f"{base_name}"[0:8]
+        with open('pytorch_implementation/BiReal18_34/savedWeights/WEIGHTS/' + base_name + '.bin', 'wb') as file:
             # print(name)
             numElements = torch.numel(module)
             data = torch.flatten(module).numpy().astype(np.float32)
@@ -677,7 +682,7 @@ def saveWeightsPerLayer(net):
         
         if "bn1" in name:
             counter -= 1
-        if "bn1.running_var" in name:
+        if "rv" in name:
             counter += 1
 
     net = net.cuda() if isCuda else net.cpu()
