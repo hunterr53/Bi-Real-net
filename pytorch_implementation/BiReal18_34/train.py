@@ -114,7 +114,8 @@ def main():
         model.load_state_dict(checkpoint['state_dict'], strict=False)
         logging.info("loaded checkpoint {} epoch = {}" .format(checkpoint_tar, checkpoint['epoch']))
 
-    start_epoch = 1
+    # start_epoch = 1 // Change for additional training
+
     # adjust the learning rate according to the checkpoint
     for epoch in range(start_epoch):
         scheduler.step()
@@ -239,7 +240,8 @@ def main():
     print("Saving Learnable Parameters to file...")
     saveWeightsPerLayer(model)
     saveWeightsBinary(model)
-    saveWeights(model, False)
+    # saveWeights(model, False)
+
     # Push First Test Image through model and save it to csv layer features
     print("Pushing Test Image through model....\n")
     model = model.eval()
@@ -256,7 +258,7 @@ def main():
             binImages[i] = rowOfData
 
             start = time.perf_counter()
-            logits = model(image, isPrint=True)
+            logits = model(image, isPrint=False)
             stop = time.perf_counter()
             if (i < 5):
                 print(f"Forward Prop for Image_{i} took {(stop - start):.3f} seconds")
