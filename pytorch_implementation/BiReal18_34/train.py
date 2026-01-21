@@ -667,7 +667,8 @@ def saveWeightsPerLayer(net):
         if "binary_conv" in name: module = torch.sign(module) # Binarize weights
 
         name = name.replace('module.', '')
-        with open('pytorch_implementation/BiReal18_34/savedWeights/weightsPerLayer/' + str(counter) + '_' + name + '_Weights.bin', 'wb') as file:
+        name = name.replace('.', '_')
+        with open('pytorch_implementation/BiReal18_34/savedWeights/WEIGHTS/' + str(counter) + '_' + name + '.bin', 'wb') as file:
             # print(name)
             numElements = torch.numel(module)
             data = torch.flatten(module).numpy().astype(np.float32)
