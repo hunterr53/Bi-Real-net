@@ -675,7 +675,7 @@ def saveWeightsPerLayer(net):
         base_name = base_name.replace('.', '')
         base_name = base_name.replace('bn1', 'bn_')
         base_name = f"{base_name}"[0:8]
-        with open('pytorch_implementation/BiReal18_34/savedWeights/WEIGHTS/' + base_name + '.bin', 'wb') as file:
+        with open('pytorch_implementation/BiReal18_34/savedWeights/WEIGHTS/' + base_name.upper() + '.BIN', 'wb') as file:
             # print(name)
             numElements = torch.numel(module)
             data = torch.flatten(module).numpy().astype(np.float32)
