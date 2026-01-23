@@ -665,8 +665,7 @@ def saveWeightsPerLayer(net):
     stateDict = net.state_dict()
     counter = 0
     for name, module in stateDict.items():
-        if "num_batches_tracked" in name: continue
-        if "binary_conv" in name: module = torch.sign(module) # Binarize weights
+        if "num_batches_tracked" in name: continue # Skip batches
 
         base_name = name.replace('module', '')
         base_name = base_name.replace('layer', '')
@@ -677,9 +676,15 @@ def saveWeightsPerLayer(net):
         base_name = f"{base_name}"[0:8]
         with open('pytorch_implementation/BiReal18_34/savedWeights/WEIGHTS/' + base_name.upper() + '.BIN', 'wb') as file:
             # print(name)
-            numElements = torch.numel(module)
-            data = torch.flatten(module).numpy().astype(np.float32)
-            file.write(data)
+            if "binary" in name:
+                module = torch.sign(module) # Binarize weights
+                data = (torch.flatten(module) > 0).numpy().astype(np.bool_)
+                packed = np.packbits(data)
+                file.write(packed)
+            else:
+                numElements = torch.numel(module)
+                data = torch.flatten(module).numpy().astype(np.float32)
+                file.write(data)
             counter += 1
         
         if "bn1" in name:
