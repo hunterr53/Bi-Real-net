@@ -678,7 +678,7 @@ def saveWeightsPerLayer(net):
             # print(name)
             if "binary" in name:
                 module = torch.sign(module) # Binarize weights
-                data = (torch.flatten(module) > 0).numpy().astype(np.bool_)
+                data = (torch.flatten(module) > 0).numpy().astype(np.uint8)
                 packed = np.packbits(data)
                 file.write(packed)
             else:
