@@ -664,6 +664,8 @@ def saveWeightsPerLayer(net):
     net = net.cpu()
     stateDict = net.state_dict()
     counter = 0
+    weights_dir = 'pytorch_implementation/BiReal18_34/savedWeights/WEIGHTS'
+    os.makedirs(weights_dir, exist_ok=True)
     for name, module in stateDict.items():
         if "num_batches_tracked" in name: continue # Skip batches
 
@@ -674,7 +676,9 @@ def saveWeightsPerLayer(net):
         base_name = base_name.replace('.', '')
         base_name = base_name.replace('bn1', 'bn_')
         base_name = f"{base_name}"[0:8]
-        with open('pytorch_implementation/BiReal18_34/savedWeights/WEIGHTS/' + base_name.upper() + '.BIN', 'wb') as file:
+        bin_path = os.path.join(weights_dir + '/BIN/', base_name.upper() + '.BIN')
+        csv_path = os.path.join(weights_dir + '/CSV/', base_name.upper() + '.csv')
+        with open(bin_path, 'wb') as file:
             # print(name)
             if "binary" in name:
                 module = torch.sign(module) # Binarize weights
@@ -686,6 +690,26 @@ def saveWeightsPerLayer(net):
                 data = torch.flatten(module).numpy().astype(np.float32)
                 file.write(data)
             counter += 1
+
+        # CSV File START
+        csv_module = ((torch.flatten(torch.sign(module)) > 0).int()) if "binary" in name else module
+        csv_module = csv_module.numpy()
+        with open(csv_path, 'w', newline='') as csvfile:
+            writer = csv.writer(csvfile)
+            if csv_module.ndim == 4:
+                out_ch, in_ch, k_h, k_w = csv_module.shape
+                for o in range(out_ch):
+                    for i in range(in_ch):
+                        writer.writerow([f"kernel o={o} i={i}"])
+                        for r in range(k_h):
+                            writer.writerow(csv_module[o, i, r, :].tolist())
+                        writer.writerow([])
+            elif csv_module.ndim == 2  and "binary" not in name:
+                for r in range(csv_module.shape[0]):
+                    writer.writerow(csv_module[r].tolist())
+            else:
+                writer.writerow(np.ravel(csv_module).tolist())
+        # CSV FILE END
         
         if "bn1" in name:
             counter -= 1
