@@ -152,3 +152,24 @@ def accuracy(output, target, topk=(1,)):
             correct_k = correct[:k].reshape(-1).float().sum(0, keepdim=True)
             res.append(correct_k.mul_(100.0 / batch_size))
         return res
+
+
+Q_FRAC_BITS = 20
+Q_SCALE = 1 << Q_FRAC_BITS
+INT32_MIN = -2**31
+INT32_MAX =  2**31 - 1
+
+def float_to_q12_20(fp32_array: np.ndarray) -> np.ndarray:
+    """
+    Convert FP32 numpy array to signed Q12.20 (int32).
+    """
+    # Ensure FP32 input
+    x = fp32_array.astype(np.float32)
+
+    # Scale
+    q = np.round(x * Q_SCALE).astype(np.int64)
+
+    # Saturate to int32
+    q = np.clip(q, INT32_MIN, INT32_MAX)
+
+    return q.astype(np.int32)

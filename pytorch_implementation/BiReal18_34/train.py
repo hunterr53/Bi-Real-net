@@ -658,15 +658,16 @@ def saveWeightsBinary(net):
 
     net = net.cuda() if isCuda else net.cpu()
 
-def saveWeightsPerLayer(net):
+def saveWeightsPerLayer(net, isFixed = 1):
     global isCuda
 
     net = net.cpu()
     stateDict = net.state_dict()
-    counter = 0
     weights_dir = 'pytorch_implementation/BiReal18_34/savedWeights/WEIGHTS'
     os.makedirs(weights_dir, exist_ok=True)
+    count = 0
     for name, module in stateDict.items():
+        count += 1
         if "num_batches_tracked" in name: continue # Skip batches
 
         base_name = name.replace('module', '')
@@ -688,8 +689,11 @@ def saveWeightsPerLayer(net):
             else:
                 numElements = torch.numel(module)
                 data = torch.flatten(module).numpy().astype(np.float32)
+
+                if isFixed: # Convert float to fixed
+                    data = float_to_q12_20(data)
+
                 file.write(data)
-            counter += 1
 
         # CSV File START
         csv_module = ((torch.flatten(torch.sign(module)) > 0).int()) if "binary" in name else module
@@ -702,19 +706,26 @@ def saveWeightsPerLayer(net):
                     for i in range(in_ch):
                         writer.writerow([f"kernel o={o} i={i}"])
                         for r in range(k_h):
-                            writer.writerow(csv_module[o, i, r, :].tolist())
+                            if isFixed and "binary" not in name:
+                                temp = float_to_q12_20(csv_module)
+                                writer.writerow(temp[o, i, r, :].tolist())
+                            else:
+                                writer.writerow(csv_module[o, i, r, :].tolist())
                         writer.writerow([])
             elif csv_module.ndim == 2  and "binary" not in name:
                 for r in range(csv_module.shape[0]):
-                    writer.writerow(csv_module[r].tolist())
+                    if isFixed and "binary" not in name:
+                        temp = float_to_q12_20(csv_module)
+                        writer.writerow(temp[r].tolist())
+                    else:
+                        writer.writerow(csv_module[r].tolist())
             else:
-                writer.writerow(np.ravel(csv_module).tolist())
+                if isFixed and "binary" not in name:
+                    temp = float_to_q12_20(csv_module)
+                    writer.writerow(np.ravel(temp).tolist())
+                else:
+                    writer.writerow(np.ravel(csv_module).tolist())
         # CSV FILE END
-        
-        if "bn1" in name:
-            counter -= 1
-        if "rv" in name:
-            counter += 1
 
     net = net.cuda() if isCuda else net.cpu()
 
