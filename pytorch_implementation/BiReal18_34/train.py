@@ -696,8 +696,12 @@ def saveWeightsPerLayer(net, isFixed = 1):
                 file.write(data)
 
         # CSV File START
-        csv_module = ((torch.flatten(torch.sign(module)) > 0).int()) if "binary" in name else module
-        csv_module = csv_module.numpy()
+        if "binary" in name:
+            csv_module = ((torch.flatten(torch.sign(module)) > 0).numpy().astype(np.uint8))
+            csv_module = np.packbits(csv_module)
+        else:
+            csv_module = module.numpy()
+
         with open(csv_path, 'w', newline='') as csvfile:
             writer = csv.writer(csvfile)
             if csv_module.ndim == 4:
