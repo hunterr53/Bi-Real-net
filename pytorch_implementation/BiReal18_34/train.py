@@ -267,6 +267,7 @@ def main():
                 print("\tMaxVal:", max(logits[0]), " Predication:", np.argmax(logits[0]), " Actual: ", target, "\n")
 
     binImages = binImages.astype(np.float32) # 4 bytes per pixel
+    binImages = float_to_q12_20(binImages)
     binImages.tofile('pytorch_implementation/BiReal18_34/savedWeights/CIFAR10.BIN', sep='') #Transformed test data
     print("Saved Test Batch to .bin File.")
 
