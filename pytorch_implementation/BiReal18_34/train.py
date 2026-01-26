@@ -699,6 +699,12 @@ def saveWeightsPerLayer(net, isFixed = 1):
         if "binary" in name:
             csv_module = ((torch.flatten(torch.sign(module)) > 0).numpy().astype(np.uint8))
             csv_module = np.packbits(csv_module)
+            # temp1 = torch.sign(module)
+            # temp2 = torch.flatten(temp1)
+            # temp3 = temp2 > 0
+            # temp4 = temp3.numpy().astype(np.uint8)
+            # temp5 = np.packbits(temp4)
+            # temp6 = 0
         else:
             csv_module = module.numpy()
 

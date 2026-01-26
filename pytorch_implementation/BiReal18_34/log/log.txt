@@ -1,6 +1,6 @@
-01/25 12:31:08 PM - root - WARNING - No CUDA available
-01/25 12:31:08 PM - root - INFO - args = Namespace(batch_size=100, epochs=256, learning_rate=0.001, momentum=0.9, weight_decay=0, save='./models', data='Datasets/CIFAR10', label_smooth=0.1, workers=5)
-01/25 12:31:09 PM - root - INFO - BiRealNet(
+01/26 09:58:00 AM - root - WARNING - No CUDA available
+01/26 09:58:00 AM - root - INFO - args = Namespace(batch_size=100, epochs=256, learning_rate=0.001, momentum=0.9, weight_decay=0, save='./models', data='Datasets/CIFAR10', label_smooth=0.1, workers=5)
+01/26 09:58:00 AM - root - INFO - BiRealNet(
   (conv1): Conv2d(3, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
   (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
   (maxpool): MaxPool2d(kernel_size=3, stride=2, padding=1, dilation=1, ceil_mode=False)
@@ -110,5 +110,5 @@
   (avgpool): AdaptiveAvgPool2d(output_size=(1, 1))
   (fc): Linear(in_features=512, out_features=10, bias=True)
 )
-01/25 12:31:09 PM - root - INFO - loading checkpoint ./models\checkpoint.pth.tar ..........
-01/25 12:31:09 PM - root - INFO - loaded checkpoint ./models\checkpoint.pth.tar epoch = 255
+01/26 09:58:00 AM - root - INFO - loading checkpoint ./models\checkpoint.pth.tar ..........
+01/26 09:58:00 AM - root - INFO - loaded checkpoint ./models\checkpoint.pth.tar epoch = 255
