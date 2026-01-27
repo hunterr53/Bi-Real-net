@@ -267,7 +267,17 @@ def main():
                 print("\tMaxVal:", max(logits[0]), " Predication:", np.argmax(logits[0]), " Actual: ", target, "\n")
 
     binImages = binImages.astype(np.float32) # 4 bytes per pixel
+    # labels = [label[0] for label in binImages[0]]
+    
+    labels = [] # Keep label from being converted to fix point
+    for set in binImages:
+        labels.append(int(set[0]))
+
     binImages = float_to_q12_20(binImages)
+    
+    for index, set in enumerate(binImages): # Keep label from being converted to fix point
+        binImages[index][0] = labels[index]
+
     binImages.tofile('pytorch_implementation/BiReal18_34/savedWeights/CIFAR10.BIN', sep='') #Transformed test data
     print("Saved Test Batch to .bin File.")
 
