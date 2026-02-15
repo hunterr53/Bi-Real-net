@@ -238,8 +238,8 @@ def main():
     #     model.module.conv1.weight.data[i] = torch.sign(weight)
 
     print("Saving Learnable Parameters to file...")
-    saveWeightsPerLayer(model)
-    saveWeightsBinary(model)
+    # saveWeightsPerLayer(model)
+    # saveWeightsBinary(model)
     # saveWeights(model, False)
 
     # Push First Test Image through model and save it to csv layer features
@@ -253,9 +253,15 @@ def main():
             target = target.cuda() if isCuda else target.cpu()
             
             # Saving data to bin file
-            rowOfData = image.flatten().numpy()
+            # rowOfData = image.flatten().numpy() // Planar ordered
+            # image is (C, H, W)
+            img = image.squeeze(0)           # remove batch if present
+            img = img.permute(1, 2, 0)       # (H, W, C)
+            rowOfData = img.contiguous().view(-1).numpy()
+
             rowOfData = np.insert(rowOfData, 0, target.data).reshape(1,-1) # Put label as first byte of data
             binImages[i] = rowOfData
+
 
             start = time.perf_counter()
             logits = model(image, isPrint=False)
