@@ -238,7 +238,7 @@ def main():
     #     model.module.conv1.weight.data[i] = torch.sign(weight)
 
     print("Saving Learnable Parameters to file...")
-    # saveWeightsPerLayer(model)
+    saveWeightsPerLayer(model)
     # saveWeightsBinary(model)
     # saveWeights(model, False)
 
@@ -705,7 +705,15 @@ def saveWeightsPerLayer(net, isFixed = 1):
                 file.write(packed)
             else:
                 numElements = torch.numel(module)
-                data = torch.flatten(module).numpy().astype(np.float32)
+                w = module.detach().numpy()
+                if (w.ndim == 4): # Transpose layer weights
+                    w = np.transpose(w, (0, 2, 3, 1)) # (64, 3, 7, 7) -> (64, 7, 7, 3)
+                
+                w = w.reshape(w.shape[0], -1) # Flatten
+
+                data = w.flatten()
+                
+                # data = torch.flatten(w).numpy().astype(np.float32)
 
                 if isFixed: # Convert float to fixed
                     data = float_to_q12_20(data)
