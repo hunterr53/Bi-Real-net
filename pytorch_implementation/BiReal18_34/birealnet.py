@@ -5,6 +5,8 @@ import torch.nn as nn
 import torch.utils.model_zoo as model_zoo
 import torch.nn.functional as F
 import numpy as np
+import csv
+from utils import float_to_q12_20
 
 globalCounter = 0
 globalImageNum = 0
@@ -274,40 +276,70 @@ def birealnet34(pretrained=False, **kwargs):
     model = BiRealNet(BasicBlock, [6, 8, 12, 6], **kwargs)
     return model
 
+# def saveFeaturesCsv(x, name):
+#     global globalImageNum
+#     with torch.no_grad():
+#         directory_name = 'pytorch_implementation/BiReal18_34/savedWeights/image_' + str(globalImageNum)
+#         path = directory_name + '/features_' + name + '.csv'
+#         pathW = directory_name + '/weights_' + name + '.csv'
+#         # np.savetxt(path, x.cpu().detach().numpy(), delimiter=',')
+#         # Create the directory
+#         try:
+#             os.mkdir(directory_name)
+#             # print(f"Directory '{directory_name}' created successfully.")
+#         except FileExistsError:
+#             pass
+#             # print(f"Directory '{directory_name}' already exists.")
+#         except PermissionError:
+#             print(f"Permission denied: Unable to create '{directory_name}'.")
+#         except Exception as e:
+#             print(f"An error occurred: {e}")
+            
+#         try:
+#             os.remove(path)
+#             # print(f"File '{path}' successfully deleted.")
+#         except FileNotFoundError:
+#             pass
+#             # print(f"Error: File '{path}' not found.")
+#         except PermissionError:
+#             print(f"Error: Permission denied to delete '{path}'.")
+#         except OSError as e:
+#              print(f"Error: An unexpected error occurred while deleting '{path}': {e}")
+        
+#         for i, kernel in enumerate(x[0]):
+#             if (i == 0 or i == len(x[0]) - 1):
+#                 test_df = pd.DataFrame(kernel.numpy().astype(np.float32))
+#                 test_df.to_csv(path, index=False, mode = 'a', header=True)
+#                 test_df = pd.DataFrame(x[0][i].numpy().astype(np.float32))
+#                 test_df.to_csv(pathW, index=False, mode = 'a', header=False)
+
 def saveFeaturesCsv(x, name):
     global globalImageNum
+
     with torch.no_grad():
-        directory_name = 'pytorch_implementation/BiReal18_34/savedWeights/image_' + str(globalImageNum)
-        path = directory_name + '/features_' + name + '.csv'
-        pathW = directory_name + '/weights_' + name + '.csv'
-        # np.savetxt(path, x.cpu().detach().numpy(), delimiter=',')
-        # Create the directory
-        try:
-            os.mkdir(directory_name)
-            # print(f"Directory '{directory_name}' created successfully.")
-        except FileExistsError:
-            pass
-            # print(f"Directory '{directory_name}' already exists.")
-        except PermissionError:
-            print(f"Permission denied: Unable to create '{directory_name}'.")
-        except Exception as e:
-            print(f"An error occurred: {e}")
-            
-        try:
-            os.remove(path)
-            # print(f"File '{path}' successfully deleted.")
-        except FileNotFoundError:
-            pass
-            # print(f"Error: File '{path}' not found.")
-        except PermissionError:
-            print(f"Error: Permission denied to delete '{path}'.")
-        except OSError as e:
-             print(f"Error: An unexpected error occurred while deleting '{path}': {e}")
-        
-        for i, kernel in enumerate(x[0]):
-            if i >= 3:
-                break # Only save first 3 kernels
-            test_df = pd.DataFrame(kernel.numpy().astype(np.float32))
-            test_df.to_csv(path, index=False, mode = 'a', header=True)
-            test_df = pd.DataFrame(x[0][i].numpy().astype(np.float32))
-            test_df.to_csv(pathW, index=False, mode = 'a', header=False)
+
+        directory_name = f'pytorch_implementation/BiReal18_34/savedWeights/image_{globalImageNum}'
+        os.makedirs(directory_name, exist_ok=True)
+
+        path_feat = f'{directory_name}/features_{name}.csv'
+
+        features = x[0].detach().numpy().astype(np.float32)  # (C, H, W)
+        C, H, W = features.shape
+
+        # Convert to (H, W, C)
+        features_hwc = np.transpose(features, (1, 2, 0))
+
+        # Flatten exactly like DDR layout:
+        # for y
+        #   for x
+        #     for c
+        xy_features = features_hwc.reshape(H*W, C)
+
+        with open(path_feat, 'w', newline='') as csvfile:
+            writer = csv.writer(csvfile)
+
+            for i in range(H*W):
+                if (i % H == 0):
+                    writer.writerow([]) if i > 0 else print("skip write")
+                    writer.writerow([f"Row r={i / H}"])
+                writer.writerow(xy_features[i, :].tolist())

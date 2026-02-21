@@ -238,7 +238,7 @@ def main():
     #     model.module.conv1.weight.data[i] = torch.sign(weight)
 
     print("Saving Learnable Parameters to file...")
-    saveWeightsPerLayer(model)
+    # saveWeightsPerLayer(model)
     # saveWeightsBinary(model)
     # saveWeights(model, False)
 
@@ -264,7 +264,7 @@ def main():
 
 
             start = time.perf_counter()
-            logits = model(image, isPrint=False)
+            logits = model(image, isPrint=True)
             stop = time.perf_counter()
             if (i < 5):
                 print(f"Forward Prop for Image_{i} took {(stop - start):.3f} seconds")
