@@ -257,9 +257,9 @@ def main():
             # image is (C, H, W)
             img = image.squeeze(0)           # remove batch if present
             img = img.permute(1, 2, 0)       # (H, W, C)
-            rowOfData = img.contiguous().view(-1).numpy()
+            rowOfData = img.cpu().contiguous().view(-1).numpy()
 
-            rowOfData = np.insert(rowOfData, 0, target.data).reshape(1,-1) # Put label as first byte of data
+            rowOfData = np.insert(rowOfData, 0, target.cpu().data).reshape(1,-1) # Put label as first byte of data
             binImages[i] = rowOfData
 
 
@@ -270,7 +270,7 @@ def main():
                 print(f"Forward Prop for Image_{i} took {(stop - start):.3f} seconds")
                 loss = criterion(logits, target)
                 print("\tImage_", i," Loss: ", loss)
-                print("\tMaxVal:", max(logits[0]), " Predication:", np.argmax(logits[0]), " Actual: ", target, "\n")
+                print("\tMaxVal:", max(logits[0]), " Predication:", np.argmax(logits[0].cpu()), " Actual: ", target, "\n")
 
     binImages = binImages.astype(np.float32) # 4 bytes per pixel
     # labels = [label[0] for label in binImages[0]]
