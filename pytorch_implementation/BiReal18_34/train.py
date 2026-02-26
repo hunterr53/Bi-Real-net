@@ -241,6 +241,9 @@ def main():
     # saveWeightsPerLayer(model)
     # saveWeightsBinary(model)
     # saveWeights(model, False)
+    repack_weights_for_parallel_filters("pytorch_implementation\BiReal18_34\savedWeights\WEIGHTS\BIN\CONV1W.BIN",
+                                        "pytorch_implementation\BiReal18_34\savedWeights\WEIGHTS\BIN_8\CONV1W.BIN",
+                                        "pytorch_implementation\BiReal18_34\savedWeights\WEIGHTS\BIN_8\CONV1W.COE")
 
     # Push First Test Image through model and save it to csv layer features
     print("Pushing Test Image through model....\n")

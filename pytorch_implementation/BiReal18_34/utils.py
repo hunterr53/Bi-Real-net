@@ -173,3 +173,100 @@ def float_to_q12_20(fp32_array: np.ndarray) -> np.ndarray:
     q = np.clip(q, INT32_MIN, INT32_MAX)
 
     return q.astype(np.int32)
+
+import numpy as np
+import os
+
+def repack_weights_for_parallel_filters(
+    input_bin_path,
+    output_bin_path,
+    output_coe_path,
+    OUT_C=64,
+    K=7,
+    IN_C=3,
+    P_FILTER=8,
+    WIN_ELEMS = 147
+):
+    F_GROUPS  = OUT_C // P_FILTER
+    DEPTH     = F_GROUPS * WIN_ELEMS  # 1176
+    """
+    Repack weight binary file for 8-filter parallel BMG.
+
+    Input:
+        int32 Q12.20
+        layout: (OUT_C, WIN_ELEMS)
+        filter-major
+
+    Output:
+        raw int32 stream ready for AXI write
+        memory layout:
+            for fg
+              for k
+                lane0
+                lane1
+                ...
+                lane7
+    """
+
+    WIN_ELEMS = K * K * IN_C
+    F_GROUPS = OUT_C // P_FILTER
+
+    weights = np.fromfile(input_bin_path, dtype=np.int32)
+
+    expected = OUT_C * WIN_ELEMS
+    if weights.size != expected:
+        raise ValueError(
+            f"Expected {expected} int32 weights, got {weights.size}"
+        )
+
+    weights = weights.reshape(OUT_C, WIN_ELEMS)
+
+    # ------------------------------------------------------------
+    # Pack for parallel filters
+    # ------------------------------------------------------------
+    packed = np.zeros((DEPTH, P_FILTER), dtype=np.int32)
+
+    for fg in range(F_GROUPS):
+        for k in range(WIN_ELEMS):
+            addr = fg * WIN_ELEMS + k
+            for lane in range(P_FILTER):
+                f = fg * P_FILTER + lane
+                packed[addr, lane] = weights[f, k]
+
+    # ------------------------------------------------------------
+    # Write 32-bit packed BIN (flat stream)
+    # ------------------------------------------------------------
+    packed_flat = packed.reshape(-1)  # depth * P_FILTER words
+    packed_flat.tofile(output_bin_path)
+
+    print("Repacking complete.")
+    print(f"Packed shape (depth, lanes): {packed.shape}")
+    print(f"Total int32 written: {packed_flat.size}")
+    print(f"Total bytes: {packed_flat.size * 4}")
+    print("Creating COE File...")
+    with open(output_coe_path, "w") as f:
+        f.write("memory_initialization_radix=16;\n")
+        f.write("memory_initialization_vector=\n")
+
+        for addr in range(DEPTH):
+            word_hex = lanes_to_hex256_word(packed[addr])
+            if addr != DEPTH - 1:
+                f.write(word_hex + ",\n")
+            else:
+                f.write(word_hex + ";\n")
+
+    print("COE file written successfully.")
+    print(f"Depth entries: {DEPTH}")
+    print(f"Each entry: {P_FILTER} x 32-bit = {P_FILTER*32} bits")
+        
+def lanes_to_hex256_word(lanes):
+    """
+    lanes: length P_FILTER (8) int32
+    lane0 -> least significant 32 bits
+    output hex: MSB first (lane7 ... lane0)
+    """
+    # Convert to unsigned for proper 2's complement hex
+    lanes_u32 = [np.uint32(x).item() for x in lanes]
+
+    # Build MSB..LSB = lane7..lane0
+    return ''.join(f"{lanes_u32[i]:08X}" for i in reversed(range(8)))
