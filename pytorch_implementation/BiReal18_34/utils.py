@@ -181,45 +181,74 @@ def repack_weights_for_parallel_filters(
     input_bin_path,
     output_bin_path,
     output_coe_path,
-    OUT_C=64,
-    K=7,
-    IN_C=3,
-    P_FILTER=8,
-    WIN_ELEMS = 147
+    OUT_C,
+    K,
+    IN_C,
+    P_FILTER,
+    little_endian=True
 ):
-    F_GROUPS  = OUT_C // P_FILTER
-    DEPTH     = F_GROUPS * WIN_ELEMS  # 1176
     """
-    Repack weight binary file for 8-filter parallel BMG.
+    Repack weight binary file for P_FILTER-parallel BMG.
 
-    Input:
-        int32 Q12.20
+    INPUT:
+        int32 (Q-format assumed)
         layout: (OUT_C, WIN_ELEMS)
         filter-major
 
-    Output:
-        raw int32 stream ready for AXI write
-        memory layout:
-            for fg
-              for k
-                lane0
-                lane1
+    OUTPUT MEMORY LAYOUT (depth x P_FILTER):
+
+        for fg in range(F_GROUPS):
+            for k in range(WIN_ELEMS):
+                addr = fg*WIN_ELEMS + k
+                lane0 = filter fg*P_FILTER + 0
+                lane1 = filter fg*P_FILTER + 1
                 ...
-                lane7
+                lane(P_FILTER-1)
+
+    Produces:
+        1) Flat int32 stream (for AXI write)
+        2) COE file (wide-word memory init)
     """
 
+    # ------------------------------------------------------------
+    # Derived parameters
+    # ------------------------------------------------------------
     WIN_ELEMS = K * K * IN_C
-    F_GROUPS = OUT_C // P_FILTER
 
+    if OUT_C % P_FILTER != 0:
+        raise ValueError(
+            f"OUT_C ({OUT_C}) must be divisible by P_FILTER ({P_FILTER})"
+        )
+
+    F_GROUPS = OUT_C // P_FILTER
+    DEPTH    = F_GROUPS * WIN_ELEMS
+
+    # ------------------------------------------------------------
+    # Load weights
+    # ------------------------------------------------------------
     weights = np.fromfile(input_bin_path, dtype=np.int32)
+    bn = False
 
     expected = OUT_C * WIN_ELEMS
-    if weights.size != expected:
+    if "BINARY.BIN" in input_bin_path:
+        expected = expected / 32
+        
+    if weights.size == expected and "BN" not in input_bin_path:
+        weights = weights.reshape(OUT_C, WIN_ELEMS)
+        bn = False
+    elif weights.size == OUT_C * 2 and "BN" in input_bin_path:
+        bn = True
+    else:
         raise ValueError(
             f"Expected {expected} int32 weights, got {weights.size}"
         )
 
-    weights = weights.reshape(OUT_C, WIN_ELEMS)
+
+
+    print(f"Loaded weights shape: {weights.shape}")
+    print(f"WIN_ELEMS: {WIN_ELEMS}")
+    print(f"F_GROUPS:  {F_GROUPS}")
+    print(f"DEPTH:     {DEPTH}")
 
     # ------------------------------------------------------------
     # Pack for parallel filters
@@ -227,29 +256,43 @@ def repack_weights_for_parallel_filters(
     packed = np.zeros((DEPTH, P_FILTER), dtype=np.int32)
 
     for fg in range(F_GROUPS):
-        for k in range(WIN_ELEMS):
-            addr = fg * WIN_ELEMS + k
+        base_filter = fg * P_FILTER
+        if bn:
             for lane in range(P_FILTER):
-                f = fg * P_FILTER + lane
-                packed[addr, lane] = weights[f, k]
+                packed[fg, lane] = weights[base_filter + lane]
+        else:
+            for k in range(WIN_ELEMS):
+                addr = fg * WIN_ELEMS + k
+
+                for lane in range(P_FILTER):
+                    packed[addr, lane] = weights[base_filter + lane, k]
 
     # ------------------------------------------------------------
-    # Write 32-bit packed BIN (flat stream)
+    # Write flat 32-bit stream
     # ------------------------------------------------------------
     packed_flat = packed.reshape(-1)  # depth * P_FILTER words
     packed_flat.tofile(output_bin_path)
 
-    print("Repacking complete.")
-    print(f"Packed shape (depth, lanes): {packed.shape}")
+    print("\nBinary packing complete.")
+    print(f"Packed shape: {packed.shape}")
     print(f"Total int32 written: {packed_flat.size}")
     print(f"Total bytes: {packed_flat.size * 4}")
-    print("Creating COE File...")
+
+    # ------------------------------------------------------------
+    # Write COE file
+    # ------------------------------------------------------------
+    print("Creating COE file...")
+
     with open(output_coe_path, "w") as f:
         f.write("memory_initialization_radix=16;\n")
         f.write("memory_initialization_vector=\n")
 
         for addr in range(DEPTH):
-            word_hex = lanes_to_hex256_word(packed[addr])
+            word_hex = lanes_to_hex_word(
+                packed[addr],
+                little_endian=little_endian
+            )
+
             if addr != DEPTH - 1:
                 f.write(word_hex + ",\n")
             else:
@@ -259,14 +302,23 @@ def repack_weights_for_parallel_filters(
     print(f"Depth entries: {DEPTH}")
     print(f"Each entry: {P_FILTER} x 32-bit = {P_FILTER*32} bits")
         
-def lanes_to_hex256_word(lanes):
+def lanes_to_hex_word(lanes, little_endian=True):
     """
-    lanes: length P_FILTER (8) int32
-    lane0 -> least significant 32 bits
-    output hex: MSB first (lane7 ... lane0)
-    """
-    # Convert to unsigned for proper 2's complement hex
-    lanes_u32 = [np.uint32(x).item() for x in lanes]
+    Convert list/array of int32 lanes into one wide hex word.
 
-    # Build MSB..LSB = lane7..lane0
-    return ''.join(f"{lanes_u32[i]:08X}" for i in reversed(range(8)))
+    lanes[0] becomes LSB if little_endian=True
+    """
+    word = 0
+    P = len(lanes)
+
+    if little_endian:
+        for i in range(P):
+            word |= (np.uint32(lanes[i]).item() & 0xFFFFFFFF) << (32 * i)
+    else:
+        for i in range(P):
+            word |= (np.uint32(lanes[i]).item() & 0xFFFFFFFF) << (32 * (P - 1 - i))
+
+    width_bits = 32 * P
+    width_hex  = width_bits // 4
+
+    return f"{word:0{width_hex}X}"

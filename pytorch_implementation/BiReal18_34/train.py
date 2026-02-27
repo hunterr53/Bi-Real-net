@@ -23,6 +23,7 @@ from torchvision import datasets, transforms
 from torchsummary import summary
 from torch.autograd import Variable
 from birealnet import birealnet18
+from coeTool import *
 
 # from mnist import MNIST
 
@@ -241,9 +242,17 @@ def main():
     # saveWeightsPerLayer(model)
     # saveWeightsBinary(model)
     # saveWeights(model, False)
-    repack_weights_for_parallel_filters("pytorch_implementation\BiReal18_34\savedWeights\WEIGHTS\BIN\CONV1W.BIN",
-                                        "pytorch_implementation\BiReal18_34\savedWeights\WEIGHTS\BIN_8\CONV1W.BIN",
-                                        "pytorch_implementation\BiReal18_34\savedWeights\WEIGHTS\BIN_8\CONV1W.COE")
+    # repack_weights_for_parallel_filters("pytorch_implementation\BiReal18_34\savedWeights\WEIGHTS\BIN\CONV1W.BIN",
+    #                                     "pytorch_implementation\BiReal18_34\savedWeights\WEIGHTS\BIN_8\CONV1W.BIN",
+    #                                     "pytorch_implementation\BiReal18_34\savedWeights\WEIGHTS\BIN_8\CONV1W.COE")
+    saveWeightsPerLayer_fixedpoint(
+        model,
+        P_FILTER=8,
+        conv_frac_bits=20,
+        bn_a_frac_bits=30,
+        bn_b_frac_bits=20,
+        little_endian=True
+    )
 
     # Push First Test Image through model and save it to csv layer features
     print("Pushing Test Image through model....\n")
@@ -686,6 +695,13 @@ def saveWeightsPerLayer(net, isFixed = 1):
     weights_dir = 'pytorch_implementation/BiReal18_34/savedWeights/WEIGHTS'
     os.makedirs(weights_dir, exist_ok=True)
     count = 0
+
+    bn_weights = 0
+    bn_bias = 0
+    bn_rm = 0
+    bn_rv = 0
+    a = 0
+    b = 0
     for name, module in stateDict.items():
         count += 1
         if "num_batches_tracked" in name: continue # Skip batches
@@ -695,7 +711,8 @@ def saveWeightsPerLayer(net, isFixed = 1):
         base_name = base_name.replace('weight', 'w').replace('bias', 'b')
         base_name = base_name.replace('running_mean', 'rm').replace('running_var', 'rv')
         base_name = base_name.replace('.', '')
-        base_name = base_name.replace('bn1', 'bn_')
+        base_name = base_name.replace('bn1', 'bn_') # Weight -> Bias -> RM -> RV
+        base_name = base_name.replace('_rv', '_WB')
         base_name = f"{base_name}"[0:8]
         bin_path = os.path.join(weights_dir + '/BIN/', base_name.upper() + '.BIN')
         csv_path = os.path.join(weights_dir + '/CSV/', base_name.upper() + '.csv')
@@ -707,10 +724,31 @@ def saveWeightsPerLayer(net, isFixed = 1):
                 packed = np.packbits(data)
                 file.write(packed)
             else:
+                if "bn_w" in base_name:
+                    bn_weights = module.detach().numpy()
+                    continue
+                if "bn_b" in base_name:
+                    bn_bias = module.detach().numpy()
+                    continue
+                if "bn_rm" in base_name:
+                    bn_rm = module.detach().numpy()
+                    continue
+                if "bn_WB" in base_name:
+                    bn_rv = module.detach().numpy()
+                    # Perform BN param fusion 
+	                #Batch Norm = Gamma (weights) * (x - mean) / sqrt(variance + epsilon) + Beta (bias)
+                    eps = 1e-5
+                    inv = 1.0 / np.sqrt(bn_rv + eps)
+                    a = bn_weights * inv
+                    b = bn_bias - a * bn_rm
+                    
+
                 numElements = torch.numel(module)
                 w = module.detach().numpy()
                 if (w.ndim == 4): # Transpose layer weights
                     w = np.transpose(w, (0, 2, 3, 1)) # (64, 3, 7, 7) -> (64, 7, 7, 3)
+                elif (w.ndim == 1):
+                    w = np.stack((a, b), axis=-1).ravel()
                 
                 w = w.reshape(w.shape[0], -1) # Flatten
 
@@ -725,14 +763,11 @@ def saveWeightsPerLayer(net, isFixed = 1):
 
         # CSV File START
         if "binary" in name:
+            in_ch = out_ch
+            out_ch = module.shape[0] / 9 / in_ch
+            k_h = 3
             csv_module = ((torch.flatten(torch.sign(module)) > 0).numpy().astype(np.uint8))
-            csv_module = np.packbits(csv_module)
-            # temp1 = torch.sign(module)
-            # temp2 = torch.flatten(temp1)
-            # temp3 = temp2 > 0
-            # temp4 = temp3.numpy().astype(np.uint8)
-            # temp5 = np.packbits(temp4)
-            # temp6 = 0
+            csv_module = np.packbits(csv_module)            
         else:
             csv_module = module.numpy()
 
@@ -764,8 +799,17 @@ def saveWeightsPerLayer(net, isFixed = 1):
                 else:
                     writer.writerow(np.ravel(csv_module).tolist())
         # CSV FILE END
+        P_FILTER = 8
+        repack_weights_for_parallel_filters(bin_path,
+                                        "pytorch_implementation\BiReal18_34\savedWeights\WEIGHTS\BIN_8/" + base_name.upper() + ".BIN" ,
+                                        "pytorch_implementation\BiReal18_34\savedWeights\WEIGHTS\BIN_8/" + base_name.upper() + ".COE",
+                                          out_ch,
+                                          k_h,
+                                          in_ch,
+                                          P_FILTER)
 
     net = net.cuda() if isCuda else net.cpu()
+
 
 
 if __name__ == '__main__':
