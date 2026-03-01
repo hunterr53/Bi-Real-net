@@ -344,8 +344,10 @@ def saveWeightsPerLayer_fixedpoint(
                         bn_tag = sanitize_tag(s, 7)# + "_" +str(bnCounter))
                         bin_pathA = os.path.join(bin_dir, f"{bn_tag}A.BIN")
                         coe_pathA = os.path.join(coe_dir, f"{bn_tag}A.COE")
+                        
                         bin_pathB = os.path.join(bin_dir, f"{bn_tag}B.BIN")
                         coe_pathB = os.path.join(coe_dir, f"{bn_tag}B.COE")
+
                         csv_pathA = os.path.join(csv_dir, f"{bn_tag}A.CSV")
                         csv_pathB = os.path.join(csv_dir, f"{bn_tag}B.CSV")
 
@@ -367,7 +369,7 @@ def saveWeightsPerLayer_fixedpoint(
                         bn_tag = sanitize_tag(s, 8)# + "_" +str(bnCounter))
                         bin_path = os.path.join(bin_dir, f"{bn_tag}.BIN")
                         coe_path = os.path.join(coe_dir, f"{bn_tag}.COE")
-                        bin_path = os.path.join(bin_dir, f"{bn_tag}.BIN")
+                        csv_path = os.path.join(csv_dir, f"{bn_tag}.CSV")
                         write_bin_u64(bin_path, words_u64) 
                         write_coe_u64(coe_path, words_u64)
                         write_csv_bn(csv_path, a_f, b_f, a_i32, b_i32)
