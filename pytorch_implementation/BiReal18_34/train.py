@@ -249,7 +249,7 @@ def main():
         model,
         P_FILTER=8,
         conv_frac_bits=20,
-        bn_a_frac_bits=30,
+        bn_a_frac_bits=20,
         bn_b_frac_bits=20,
         little_endian=True
     )

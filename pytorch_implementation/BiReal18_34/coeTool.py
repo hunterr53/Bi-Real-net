@@ -256,6 +256,9 @@ def saveWeightsPerLayer_fixedpoint(
     exported = 0
     bnCounter = 0
 
+    prev_fullConvWeights = None
+    prev_binaryConvWeights = None
+
     for name, tensor in sd.items():
         if "num_batches_tracked" in name:
             continue
@@ -286,6 +289,7 @@ def saveWeightsPerLayer_fixedpoint(
             write_csv_matrix(csv_path, bits01, header=f"{name} binary bits (0/1)")
 
             exported += 1
+            prev_binaryConvWeights = bits01
             continue
 
         # -----------------------------
@@ -321,22 +325,53 @@ def saveWeightsPerLayer_fixedpoint(
                     a_f = gamma * inv
                     b_f = beta - a_f * rm
 
-                    a_i32 = float_to_fixed_int32(a_f, bn_a_frac_bits).astype(np.int32)  # Q2.30
-                    b_i32 = float_to_fixed_int32(b_f, bn_b_frac_bits).astype(np.int32)  # Q12.20
+                    if prev_fullConvWeights is not None:
+                        fusedWeights = prev_fullConvWeights * a_f[:, None, None, None]
+                        temp = a_f
+                        a_f = fusedWeights
+                        prev_fullConvWeights = None
 
-                    words_u64 = pack_bn_ab_u64(a_i32, b_i32, little_endian=little_endian)
+                        # transpose to (OUT_C, K, K, IN_C) then flatten per filter
+                        a_tr = np.transpose(a_f, (0, 2, 3, 1))
+                        WIN_ELEMS = KH * KW * IN_C
+                        a_tr = a_tr.reshape(OUT_C, WIN_ELEMS)
+                        a_i32 = float_to_fixed_int32(a_tr, bn_a_frac_bits).astype(np.int32)  # Q2.30
+                        b_i32 = float_to_fixed_int32(b_f, bn_b_frac_bits).astype(np.int32)  # Q12.20
+                        packed_a = pack_conv_parallel_filters(a_i32, P_FILTER=P_FILTER)  # (DEPTH, P_FILTER)
 
-                    s = name.replace('running_var', '')
-                    s = s.replace('downsample', 'bn')
-                    bn_tag = sanitize_tag(s)# + "_" +str(bnCounter))
-                    bin_path = os.path.join(bin_dir, f"{bn_tag}.BIN")
-                    coe_path = os.path.join(coe_dir, f"{bn_tag}.COE")
-                    csv_path = os.path.join(csv_dir, f"{bn_tag}.CSV")
+                        s = name.replace('running_var', '')
+                        s = s.replace('downsample', 'bn')
+                        bn_tag = sanitize_tag(s, 7)# + "_" +str(bnCounter))
+                        bin_pathA = os.path.join(bin_dir, f"{bn_tag}A.BIN")
+                        coe_pathA = os.path.join(coe_dir, f"{bn_tag}A.COE")
+                        bin_pathB = os.path.join(bin_dir, f"{bn_tag}B.BIN")
+                        coe_pathB = os.path.join(coe_dir, f"{bn_tag}B.COE")
+                        csv_pathA = os.path.join(csv_dir, f"{bn_tag}A.CSV")
+                        csv_pathB = os.path.join(csv_dir, f"{bn_tag}B.CSV")
 
-                    write_bin_u64(bin_path, words_u64)
-                    write_coe_u64(coe_path, words_u64)
-                    write_csv_bn(csv_path, a_f, b_f, a_i32, b_i32)
+                        write_bin_int32(bin_pathA, packed_a.reshape(-1))# packed fused weights. output x kernel x kernel x input
+                        write_coe_wide_from_packed_i32(coe_pathA, packed_a, little_endian=little_endian)
+                        write_csv_matrix(csv_pathA, packed_a, header=f"{bn_tag}A FUSED packed (DEPTH x P_FILTER) Q{32-bn_a_frac_bits}.{bn_a_frac_bits}")
+                        
+                        write_bin_int32(bin_pathB, b_i32)
+                        write_coe_u32(coe_pathB, b_i32.view(np.uint32))
+                        write_csv_matrix(csv_pathB, b_i32, header=f"{bn_tag}B fused bias Q{32-bn_b_frac_bits}.{bn_b_frac_bits}")
 
+                    else:
+                        a_i32 = float_to_fixed_int32(a_f, bn_a_frac_bits).astype(np.int32)  # Q2.30
+                        b_i32 = float_to_fixed_int32(b_f, bn_b_frac_bits).astype(np.int32)  # Q12.20
+                        words_u64 = pack_bn_ab_u64(a_i32, b_i32, little_endian=little_endian)
+
+                        s = name.replace('running_var', '')
+                        s = s.replace('downsample', 'bn')
+                        bn_tag = sanitize_tag(s, 8)# + "_" +str(bnCounter))
+                        bin_path = os.path.join(bin_dir, f"{bn_tag}.BIN")
+                        coe_path = os.path.join(coe_dir, f"{bn_tag}.COE")
+                        bin_path = os.path.join(bin_dir, f"{bn_tag}.BIN")
+                        write_bin_u64(bin_path, words_u64) 
+                        write_coe_u64(coe_path, words_u64)
+                        write_csv_bn(csv_path, a_f, b_f, a_i32, b_i32)
+                        
                     exported += 1
                     bnCounter += 1
                 continue
@@ -378,6 +413,8 @@ def saveWeightsPerLayer_fixedpoint(
             write_csv_matrix(csv_path, packed, header=f"{name} packed (DEPTH x P_FILTER) Q12.{conv_frac_bits}")
 
             exported += 1
+            prev_fullConvWeights = w_np
+
             continue
 
         # -----------------------------
