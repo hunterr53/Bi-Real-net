@@ -101,6 +101,29 @@ def pack_bn_ab_u64(a_i32: np.ndarray, b_i32: np.ndarray, little_endian=True) -> 
 
     return words
 
+def pack_bias_parallel_filters(bias_i32: np.ndarray, P_FILTER: int) -> np.ndarray:
+    """
+    bias_i32: shape (OUT_C,) int32
+    Returns packed: shape (F_GROUPS, P_FILTER) int32
+
+    addr = f_group
+    packed[addr, lane] = bias[f_group*P_FILTER + lane]
+    """
+    bias_i32 = np.asarray(bias_i32, dtype=np.int32).reshape(-1)
+
+    OUT_C = bias_i32.size
+    if OUT_C % P_FILTER != 0:
+        raise ValueError(f"OUT_C={OUT_C} must be divisible by P_FILTER={P_FILTER}")
+
+    F_GROUPS = OUT_C // P_FILTER
+    packed = np.zeros((F_GROUPS, P_FILTER), dtype=np.int32)
+
+    for fg in range(F_GROUPS):
+        base = fg * P_FILTER
+        packed[fg, :] = bias_i32[base:base + P_FILTER]
+
+    return packed
+
 # -----------------------------
 # File writers
 # -----------------------------
@@ -338,6 +361,7 @@ def saveWeightsPerLayer_fixedpoint(
                         a_i32 = float_to_fixed_int32(a_tr, bn_a_frac_bits).astype(np.int32)  # Q2.30
                         b_i32 = float_to_fixed_int32(b_f, bn_b_frac_bits).astype(np.int32)  # Q12.20
                         packed_a = pack_conv_parallel_filters(a_i32, P_FILTER=P_FILTER)  # (DEPTH, P_FILTER)
+                        packed_b = pack_bias_parallel_filters(b_i32, P_FILTER=P_FILTER)
 
                         s = name.replace('running_var', '')
                         s = s.replace('downsample', 'bn')
@@ -355,9 +379,9 @@ def saveWeightsPerLayer_fixedpoint(
                         write_coe_wide_from_packed_i32(coe_pathA, packed_a, little_endian=little_endian)
                         write_csv_matrix(csv_pathA, packed_a, header=f"{bn_tag}A FUSED packed (DEPTH x P_FILTER) Q{32-bn_a_frac_bits}.{bn_a_frac_bits}")
                         
-                        write_bin_int32(bin_pathB, b_i32)
-                        write_coe_u32(coe_pathB, b_i32.view(np.uint32))
-                        write_csv_matrix(csv_pathB, b_i32, header=f"{bn_tag}B fused bias Q{32-bn_b_frac_bits}.{bn_b_frac_bits}")
+                        write_bin_int32(bin_pathB, packed_b.reshape(-1))
+                        write_coe_wide_from_packed_i32(coe_pathB, packed_b)
+                        write_csv_matrix(csv_pathB, packed_b, header=f"{bn_tag}B fused bias Q{32-bn_b_frac_bits}.{bn_b_frac_bits}")
 
                     else:
                         a_i32 = float_to_fixed_int32(a_f, bn_a_frac_bits).astype(np.int32)  # Q2.30
