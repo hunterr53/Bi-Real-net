@@ -71,35 +71,68 @@ def pack_conv_parallel_filters(weights_oc_ke: np.ndarray, P_FILTER: int) -> np.n
 
     return packed
 
-
-def pack_bn_ab_u64(a_i32: np.ndarray, b_i32: np.ndarray, little_endian=True) -> np.ndarray:
+def pack_bn_ab_bmg(a_i32: np.ndarray,
+                   b_i32: np.ndarray,
+                   p_filter: int = 8,
+                   little_endian: bool = True):
     """
-    Pack BN per-channel a,b into uint64 words.
-    Default mapping (little_endian=True):
-      [63:32] = a (Q2.30 int32)
-      [31:0]  = b (Q12.20 int32)
+    Pack BN parameters for BMG.
+
+    Per channel:
+        A = int32
+        B = int32
+        packed = 64 bits
+
+    BMG word:
+        p_filter channels packed together.
+
+    Example (p_filter=8):
+        word[63:0]    -> channel0
+        word[127:64]  -> channel1
+        ...
+        word[511:448] -> channel7
+
+    Returns
+    -------
+    np.ndarray(dtype=object)
+        Array of Python integers representing 512-bit words
     """
     a_i32 = np.asarray(a_i32, dtype=np.int32).reshape(-1)
     b_i32 = np.asarray(b_i32, dtype=np.int32).reshape(-1)
+
     if a_i32.size != b_i32.size:
         raise ValueError("a and b must have same length")
 
-    OUT_C = a_i32.size
-    words = np.zeros(OUT_C, dtype=np.uint64)
+    out_c = a_i32.size
 
-    for i in range(OUT_C):
-        # Convert to Python int, then mask to 32-bit unsigned
-        au = int(a_i32[i]) & 0xFFFFFFFF
-        bu = int(b_i32[i]) & 0xFFFFFFFF
+    if out_c % p_filter != 0:
+        raise ValueError("OUT_C must be divisible by p_filter")
 
-        if little_endian:
-            word = (au << 32) | bu
-        else:
-            word = (bu << 32) | au
+    groups = out_c // p_filter
 
-        words[i] = np.uint64(word)
+    words = []
 
-    return words
+    for g in range(groups):
+
+        word = 0
+
+        for lane in range(p_filter):
+
+            idx = g * p_filter + lane
+
+            au = int(a_i32[idx]) & 0xFFFFFFFF
+            bu = int(b_i32[idx]) & 0xFFFFFFFF
+
+            if little_endian:
+                pair = (au << 32) | bu
+            else:
+                pair = (bu << 32) | au
+
+            word |= pair << (lane * 64)
+
+        words.append(word)
+
+    return np.array(words, dtype=object)
 
 def pack_bias_parallel_filters(bias_i32: np.ndarray, P_FILTER: int) -> np.ndarray:
     """
@@ -183,7 +216,8 @@ def write_csv_bn(path, a_f, b_f, a_i32, b_i32):
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "w", newline="") as csvfile:
         w = csv.writer(csvfile)
-        w.writerow(["ch", "a_float", "b_float", "a_i32(Q2.30)", "b_i32(Q12.20)"])
+        # w.writerow(["ch", "a_float", "b_float", "a_i32(Q2.30)", "b_i32(Q12.20)"])
+        w.writerow(["ch", "a_float", "b_float", "a_i32(Q12.20)", "b_i32(Q12.20)"])
         for i in range(len(a_f)):
             w.writerow([i, float(a_f[i]), float(b_f[i]), int(a_i32[i]), int(b_i32[i])])
 
@@ -202,6 +236,58 @@ def bitpack_binary_weights_to_u32(words01: np.ndarray) -> np.ndarray:
             out[i // 32] |= (1 << (i % 32))
     return out
 
+def pack_binary_weights_to_coe_lines(
+        flat_bits,
+        Cin=64,
+        Cout=64,
+        K=3,
+        parallel_filters=8
+):
+    """
+    Convert flattened binary weights (0/1) into 256-bit COE lines
+    compatible with your RTL weight BMG.
+
+    flat_bits shape: (K*K*Cin*Cout,) or (36864,1)
+
+    Returns: list of hex strings
+    """
+
+    bits = np.asarray(flat_bits, dtype=np.int8).reshape(-1)
+
+    # restore convolution layout
+    weights = bits.reshape(Cout, Cin, K, K)
+
+    cin_groups = Cin // 32
+    P = parallel_filters
+
+    lines = []
+
+    for oc_group in range(Cout // P):
+
+        for ky in range(K):
+            for kx in range(K):
+                for cg in range(cin_groups):
+
+                    lanes = np.zeros(P, dtype=np.uint32)
+
+                    for p in range(P):
+
+                        oc = oc_group * P + p
+
+                        packed = 0
+
+                        for b in range(32):
+
+                            c = cg * 32 + b
+
+                            if weights[oc, c, ky, kx] > 0:
+                                packed |= (1 << b)
+
+                        lanes[p] = np.uint32(packed)
+
+                    lines.append(lanes_to_hex_word(lanes))
+
+    return lines
 
 def write_coe_u32(path, data_u32: np.ndarray):
     data = np.asarray(data_u32, dtype=np.uint32).reshape(-1)
@@ -213,6 +299,37 @@ def write_coe_u32(path, data_u32: np.ndarray):
             hx = f"{int(data[i]):08X}"
             f.write(hx + (",\n" if i != data.size - 1 else ";\n"))
 
+def write_coe_from_lines(filename, lines):
+
+    with open(filename, "w") as f:
+
+        f.write("memory_initialization_radix=16;\n")
+        f.write("memory_initialization_vector=\n")
+
+        for i, line in enumerate(lines):
+
+            if i != len(lines) - 1:
+                f.write(line + ",\n")
+            else:
+                f.write(line + ";\n")
+
+def write_coe(filename, words, width=512):
+
+    hex_width = width // 4
+
+    with open(filename, "w") as f:
+
+        f.write("memory_initialization_radix=16;\n")
+        f.write("memory_initialization_vector=\n")
+
+        for i, w in enumerate(words):
+
+            hex_word = format(w, f"0{hex_width}x")
+
+            if i != len(words) - 1:
+                f.write(hex_word + ",\n")
+            else:
+                f.write(hex_word + ";\n")
 
 # -----------------------------
 # Name helpers
@@ -293,26 +410,40 @@ def saveWeightsPerLayer_fixedpoint(
         # -----------------------------
         if "binary" in name:
             # sign -> {0,1}
-            w = torch.sign(tensor).reshape(-1)
-            bits01 = (w > 0).numpy().astype(np.uint8)
+            if "layer1.0" in name:
+                IN_C = OUT_C
+                OUT_C = OUT_C
+            elif ".0" in name:
+                IN_C = OUT_C
+                OUT_C = OUT_C * 2
+            else:
+                IN_C = OUT_C
+                OUT_C = OUT_C
 
-            # BIN: packed bytes (np.packbits is MSB-first within byte; fine as long as you match in HW)
-            packed_bytes = np.packbits(bits01)
-            bin_path = os.path.join(bin_dir, f"{tag}.BIN")
-            with open(bin_path, "wb") as f:
-                f.write(packed_bytes.tobytes())
+            KW = 3
+            KH = 3
+            w = torch.sign(tensor).reshape(-1)
+            packed_w = pack_binary_weights_to_coe_lines(w, IN_C, OUT_C, 3, 8)
+                # bits01 = (w > 0).numpy().astype(np.uint8)
+
+                # # BIN: packed bytes (np.packbits is MSB-first within byte; fine as long as you match in HW)
+                # packed_bytes = np.packbits(bits01)
+            # bin_path = os.path.join(bin_dir, f"{tag}.BIN")
+            # with open(bin_path, "wb") as f:
+            #     f.write(packed_w.tobytes())
 
             # COE: pack into u32 (LSB-first within u32) for easy BRAM init if needed
-            u32_words = bitpack_binary_weights_to_u32(bits01)
+                # u32_words = bitpack_binary_weights_to_u32(bits01)
+                
             coe_path = os.path.join(coe_dir, f"{tag}.COE")
-            write_coe_u32(coe_path, u32_words)
+            write_coe_from_lines(coe_path, packed_w)
 
             # CSV: raw 0/1 list (can be big; still useful for debug)
-            csv_path = os.path.join(csv_dir, f"{tag}.CSV")
-            write_csv_matrix(csv_path, bits01, header=f"{name} binary bits (0/1)")
+            # csv_path = os.path.join(csv_dir, f"{tag}.CSV")
+            # write_csv_matrix(csv_path, packed_w, header=f"{name} binary bits (0/1)")
 
             exported += 1
-            prev_binaryConvWeights = bits01
+            prev_binaryConvWeights = packed_w
             continue
 
         # -----------------------------
@@ -384,9 +515,9 @@ def saveWeightsPerLayer_fixedpoint(
                         write_csv_matrix(csv_pathB, packed_b, header=f"{bn_tag}B fused bias Q{32-bn_b_frac_bits}.{bn_b_frac_bits}")
 
                     else:
-                        a_i32 = float_to_fixed_int32(a_f, bn_a_frac_bits).astype(np.int32)  # Q2.30
+                        a_i32 = float_to_fixed_int32(a_f, bn_a_frac_bits).astype(np.int32)  # Q12.20
                         b_i32 = float_to_fixed_int32(b_f, bn_b_frac_bits).astype(np.int32)  # Q12.20
-                        words_u64 = pack_bn_ab_u64(a_i32, b_i32, little_endian=little_endian)
+                        words_u64 = pack_bn_ab_bmg(a_i32, b_i32, p_filter=P_FILTER, little_endian=little_endian)
 
                         s = name.replace('running_var', '')
                         s = s.replace('downsample', 'bn')
@@ -394,9 +525,9 @@ def saveWeightsPerLayer_fixedpoint(
                         bin_path = os.path.join(bin_dir, f"{bn_tag}.BIN")
                         coe_path = os.path.join(coe_dir, f"{bn_tag}.COE")
                         csv_path = os.path.join(csv_dir, f"{bn_tag}.CSV")
-                        write_bin_u64(bin_path, words_u64) 
-                        write_coe_u64(coe_path, words_u64)
-                        write_csv_bn(csv_path, a_f, b_f, a_i32, b_i32)
+                        # write_bin_u64(bin_path, words_u64) 
+                        write_coe(coe_path, words_u64)
+                        # write_csv_bn(csv_path, a_f, b_f, a_i32, b_i32)
                         
                     exported += 1
                     bnCounter += 1
