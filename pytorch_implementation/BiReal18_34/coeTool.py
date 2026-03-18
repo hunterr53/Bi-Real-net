@@ -281,7 +281,7 @@ def pack_binary_weights_to_coe_lines(
                             c = cg * 32 + b
 
                             if weights[oc, c, ky, kx] > 0:
-                                packed |= (1 << b)
+                                packed |= (1 << (31 - b))
 
                         lanes[p] = np.uint32(packed)
 
@@ -359,7 +359,7 @@ def saveWeightsPerLayer_fixedpoint(
     out_dir="pytorch_implementation/BiReal18_34/savedWeights/WEIGHTS",
     P_FILTER=8,
     conv_frac_bits=20,      # Q12.20
-    bn_a_frac_bits=30,      # Q2.30
+    bn_a_frac_bits=20,      # Q12.20
     bn_b_frac_bits=20,      # Q12.20
     bn_eps=1e-5,
     little_endian=True
@@ -489,7 +489,7 @@ def saveWeightsPerLayer_fixedpoint(
                         a_tr = np.transpose(a_f, (0, 2, 3, 1))
                         WIN_ELEMS = KH * KW * IN_C
                         a_tr = a_tr.reshape(OUT_C, WIN_ELEMS)
-                        a_i32 = float_to_fixed_int32(a_tr, bn_a_frac_bits).astype(np.int32)  # Q2.30
+                        a_i32 = float_to_fixed_int32(a_tr, bn_a_frac_bits).astype(np.int32)  # Q12.20
                         b_i32 = float_to_fixed_int32(b_f, bn_b_frac_bits).astype(np.int32)  # Q12.20
                         packed_a = pack_conv_parallel_filters(a_i32, P_FILTER=P_FILTER)  # (DEPTH, P_FILTER)
                         packed_b = pack_bias_parallel_filters(b_i32, P_FILTER=P_FILTER)
