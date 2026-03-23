@@ -71,6 +71,44 @@ def pack_conv_parallel_filters(weights_oc_ke: np.ndarray, P_FILTER: int) -> np.n
 
     return packed
 
+def pack_fc_weights_to_coe_lines(
+    weights,          # shape: (OUT_C, IN_C)
+    parallel_filters=5
+):
+    """
+    Packs FC weights into 256-bit lines for FPGA BRAM.
+
+    Output format matches RTL:
+    address = group * IN_C + input_channel
+
+    Each line = 8 × 32-bit weights (one per output lane)
+    """
+
+    OUT_C, IN_C = weights.shape
+    P = parallel_filters
+
+    assert OUT_C % P == 0, "OUT_C must be divisible by P_FILTER"
+
+    groups = OUT_C // P
+    lines = []
+
+    for g in range(groups):
+        for ic in range(IN_C):
+
+            lanes = np.zeros(P, dtype=np.uint32)
+
+            for p in range(P):
+                oc = g * P + p
+                val = weights[oc, ic]
+
+                lanes[p] = np.uint32(val)
+
+            # pack into hex string (lane0 = LSB)
+            word = ''.join(f'{x:08X}' for x in lanes[::-1])
+            lines.append(word)
+
+    return lines
+
 def pack_bn_ab_bmg(a_i32: np.ndarray,
                    b_i32: np.ndarray,
                    p_filter: int = 8,
@@ -574,21 +612,68 @@ def saveWeightsPerLayer_fixedpoint(
 
             continue
 
+        if w_np.ndim == 2: #FFN Weights:
+            # Convert to fixed point
+            w_i32 = float_to_fixed_int32(w_np, conv_frac_bits)
+
+            vec_tag = sanitize_tag(name)
+            coe_path = os.path.join(coe_dir, f"{vec_tag}.COE")
+
+            # Pack correctly for hardware
+            hex_lines = pack_fc_weights_to_coe_lines(
+                w_i32,
+                parallel_filters=5
+            )
+
+            write_coe_from_lines(coe_path, hex_lines)
+
+            # Optional debug outputs
+            csv_path = os.path.join(csv_dir, f"{vec_tag}.CSV")
+            write_csv_matrix(csv_path, w_i32, header=f"{name} Q{32-conv_frac_bits}.{conv_frac_bits}")
+
+            exported += 1
+            continue
+
         # -----------------------------
         # Other 1D params (non-BN) - optional export
         # -----------------------------
-        # If you want to export biases/FC/etc as fixed-point:
         if w_np.ndim == 1:
-            vec_i32 = float_to_fixed_int32(w_np, conv_frac_bits)
             vec_tag = sanitize_tag(name)
-            bin_path = os.path.join(bin_dir, f"{vec_tag}.BIN")
             coe_path = os.path.join(coe_dir, f"{vec_tag}.COE")
             csv_path = os.path.join(csv_dir, f"{vec_tag}.CSV")
 
-            write_bin_int32(bin_path, vec_i32)
-            # COE as 32-bit entries
-            write_coe_u32(coe_path, vec_i32.view(np.uint32))
-            write_csv_matrix(csv_path, vec_i32, header=f"{name} Q12.{conv_frac_bits}")
+            OUT_C_FF = len(w_np)
+            par = 5
+            groups = (OUT_C_FF + par -1) // par
+            lines = []
+            fixed = float_to_fixed_int32(w_np, conv_frac_bits)
+
+            for g in range(groups):
+                lanes = np.zeros(par, dtype=np.uint32)
+
+                for p in range(par):
+                    oc = g * par + p
+                    if oc < OUT_C_FF:
+                        lanes[p] = np.uint32(fixed[oc])
+
+                word = ''.join(f'{x:08X}' for x in lanes[::-1])
+                lines.append(word)
+
+            write_coe_from_lines(coe_path, lines)
+
+            # Optional debug outputs
+            write_csv_matrix(csv_path, fixed, header=f"{name} Q{32-conv_frac_bits}.{conv_frac_bits}")
+
+            # vec_i32 = float_to_fixed_int32(w_np, conv_frac_bits)
+            # vec_tag = sanitize_tag(name)
+            # bin_path = os.path.join(bin_dir, f"{vec_tag}.BIN")
+            # coe_path = os.path.join(coe_dir, f"{vec_tag}.COE")
+            # csv_path = os.path.join(csv_dir, f"{vec_tag}.CSV")
+
+            # write_bin_int32(bin_path, vec_i32)
+            # # COE as 32-bit entries
+            # write_coe_u32(coe_path, vec_i32.view(np.uint32))
+            # write_csv_matrix(csv_path, vec_i32, header=f"{name} Q12.{conv_frac_bits}")
 
             exported += 1
             continue
